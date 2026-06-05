@@ -1137,14 +1137,18 @@ async function exportToCSV() {
     rows.push([]);
     rows.push(['=== ตารางผลทาย (Prediction Matrix) ===']);
 
-    const lockedMatches = uniqueMatches.filter(m => m.status === 'finished' || m.status === 'live' ||
-      new Date() > new Date(new Date(m.kickoff).getTime() - 15 * 60 * 1000));
+    // Include any match that has at least one prediction recorded in the grid
+    const matchesWithPreds = uniqueMatches.filter(m =>
+      leaderboard.some(p => predictionGrid[p.id] && predictionGrid[p.id][m.id] != null)
+    );
+    // Fall back to all matches if none have predictions yet
+    const matrixMatches = matchesWithPreds.length > 0 ? matchesWithPreds : uniqueMatches;
 
-    const matchHeader = ['ผู้เล่น', ...lockedMatches.map(m => `${m.team1} vs ${m.team2}`)];
+    const matchHeader = ['ผู้เล่น', ...matrixMatches.map(m => `${m.team1} vs ${m.team2}`)];
     rows.push(matchHeader);
 
     // Result row
-    const resultRow = ['ผลจริง', ...lockedMatches.map(m => {
+    const resultRow = ['ผลจริง', ...matrixMatches.map(m => {
       if (m.winner === 'team1') return m.team1;
       if (m.winner === 'team2') return m.team2;
       if (m.winner === 'draw') return 'Draw';
@@ -1154,7 +1158,7 @@ async function exportToCSV() {
 
     leaderboard.forEach(player => {
       const grid = predictionGrid[player.id] || {};
-      const row = [player.name, ...lockedMatches.map(m => {
+      const row = [player.name, ...matrixMatches.map(m => {
         const pred = grid[m.id];
         if (!pred) return '-';
         if (pred === 'team1') return m.team1;
