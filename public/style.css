@@ -47,6 +47,11 @@
   box-sizing: border-box;
 }
 
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   font-family: var(--font-primary);
   background-color: var(--bg-main);
@@ -55,7 +60,6 @@ body {
   display: flex;
   flex-direction: column;
   position: relative;
-  overflow-x: hidden;
   line-height: 1.6;
 }
 
@@ -688,6 +692,7 @@ main {
 .table-responsive {
   display: block;
   width: 100%;
+  max-width: 100%;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   border-radius: 8px;
@@ -1442,6 +1447,8 @@ footer {
   .predict-btn {
     padding: 0.5rem 0.2rem;
     font-size: 0.75rem;
+    white-space: normal;
+    word-break: break-word;
   }
 
   .user-status-card {
@@ -1454,5 +1461,10 @@ footer {
 
   h1 {
     font-size: 1.5rem;
+  }
+
+  .modal-content {
+    margin: 1rem;
+    max-width: calc(100% - 2rem);
   }
 }
