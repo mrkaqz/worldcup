@@ -291,6 +291,30 @@
 
       </div>
 
+      <!-- Export & Backup -->
+      <div class="glass-card admin-export-card" style="margin-top: 1.5rem;">
+        <div class="card-header">
+          <h3><i class="fa-solid fa-file-export"></i> ส่งออก & สำรองข้อมูล (Export & Backup)</h3>
+        </div>
+        <p class="description-text">ดาวน์โหลดข้อมูลทายผลและผลการแข่งขันทั้งหมดในรูปแบบที่ต้องการ</p>
+        <div class="export-actions">
+          <button id="export-csv-btn" class="btn-export">
+            <i class="fa-solid fa-table fa-lg"></i>
+            <div>
+              <div class="export-btn-title">ส่งออก Excel / CSV</div>
+              <div class="export-btn-sub">ตารางคะแนน + ผลทายทั้งหมด</div>
+            </div>
+          </button>
+          <button id="export-json-btn" class="btn-export btn-export-json">
+            <i class="fa-solid fa-database fa-lg"></i>
+            <div>
+              <div class="export-btn-title">สำรองฐานข้อมูล (JSON)</div>
+              <div class="export-btn-sub">ไฟล์สำรองสำหรับกู้คืนระบบ</div>
+            </div>
+          </button>
+        </div>
+      </div>
+
       <!-- Danger Zone System Reset -->
       <div class="glass-card" style="margin-top: 1.5rem; border-color: rgba(239, 68, 68, 0.3);">
         <h3 style="color: var(--color-danger);"><i class="fa-solid fa-triangle-exclamation"></i> Danger Zone (พื้นที่อันตราย)</h3>
@@ -309,7 +333,7 @@
   <footer>
     <div class="container footer-content">
       <p>© 2026 FIFA World Cup Predictor App. พัฒนาขึ้นด้วย ❤️ สำหรับความสนุกในหมู่คณะ</p>
-      <p class="current-time-footer">เวลาในระบบขณะนี้: <span id="server-time-display">--:--:--</span> | v1.9.0</p>
+      <p class="current-time-footer">เวลาในระบบขณะนี้: <span id="server-time-display">--:--:--</span> | v2.0.0</p>
     </div>
   </footer>
 

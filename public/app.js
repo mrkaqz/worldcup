@@ -212,6 +212,12 @@ function setupEventListeners() {
       showToast('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์', 'error');
     }
   });
+
+  // Export CSV
+  document.getElementById('export-csv-btn').addEventListener('click', exportToCSV);
+
+  // Export JSON backup
+  document.getElementById('export-json-btn').addEventListener('click', downloadBackupJSON);
 }
 
 function switchTab(tabId) {
@@ -1095,4 +1101,115 @@ async function resetMatchResult(matchId) {
     console.error(err);
     showToast('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์', 'error');
   }
+}
+
+// ==========================================================================
+// EXPORT & BACKUP
+// ==========================================================================
+
+async function exportToCSV() {
+  try {
+    const res = await fetch('/api/leaderboard');
+    if (!res.ok) throw new Error('โหลดข้อมูลไม่สำเร็จ');
+    const { leaderboard, matches, predictionGrid } = await res.json();
+
+    // Deduplicate matches by id (db may have duplicates from sync bug)
+    const seenIds = new Set();
+    const uniqueMatches = matches.filter(m => {
+      if (seenIds.has(m.id)) return false;
+      seenIds.add(m.id);
+      return true;
+    });
+
+    const rows = [];
+    const ts = new Date().toLocaleString('th-TH', { timeZone: 'Asia/Bangkok' });
+
+    // ── Section 1: Leaderboard ────────────────────────────────────────────
+    rows.push([`World Cup 2026 Predictor — Export: ${ts}`]);
+    rows.push([]);
+    rows.push(['=== ตารางคะแนนผู้เล่น (Leaderboard) ===']);
+    rows.push(['อันดับ', 'ชื่อ', 'Username', 'ทายถูก', 'ทั้งหมด', 'คะแนน']);
+    leaderboard.forEach((p, i) => {
+      rows.push([i + 1, p.name, p.username || '', p.correct ?? 0, p.total ?? 0, p.score ?? 0]);
+    });
+
+    // ── Section 2: Prediction Matrix ─────────────────────────────────────
+    rows.push([]);
+    rows.push(['=== ตารางผลทาย (Prediction Matrix) ===']);
+
+    const lockedMatches = uniqueMatches.filter(m => m.status === 'finished' || m.status === 'live' ||
+      new Date() > new Date(new Date(m.kickoff).getTime() - 15 * 60 * 1000));
+
+    const matchHeader = ['ผู้เล่น', ...lockedMatches.map(m => `${m.team1} vs ${m.team2}`)];
+    rows.push(matchHeader);
+
+    // Result row
+    const resultRow = ['ผลจริง', ...lockedMatches.map(m => {
+      if (m.winner === 'team1') return m.team1;
+      if (m.winner === 'team2') return m.team2;
+      if (m.winner === 'draw') return 'Draw';
+      return '-';
+    })];
+    rows.push(resultRow);
+
+    leaderboard.forEach(player => {
+      const grid = predictionGrid[player.id] || {};
+      const row = [player.name, ...lockedMatches.map(m => {
+        const pred = grid[m.id];
+        if (!pred) return '-';
+        if (pred === 'team1') return m.team1;
+        if (pred === 'team2') return m.team2;
+        if (pred === 'draw') return 'Draw';
+        return pred;
+      })];
+      rows.push(row);
+    });
+
+    // ── Build CSV with UTF-8 BOM for Thai Excel compatibility ─────────────
+    const csv = '﻿' + rows.map(r =>
+      r.map(cell => {
+        const str = String(cell ?? '');
+        return str.includes(',') || str.includes('"') || str.includes('\n')
+          ? `"${str.replace(/"/g, '""')}"` : str;
+      }).join(',')
+    ).join('\r\n');
+
+    const date = new Date().toISOString().slice(0, 10);
+    triggerDownload(new Blob([csv], { type: 'text/csv;charset=utf-8;' }), `worldcup-export-${date}.csv`);
+    showToast('ส่งออก CSV สำเร็จ', 'success');
+  } catch (err) {
+    console.error(err);
+    showToast('ส่งออกไม่สำเร็จ: ' + err.message, 'error');
+  }
+}
+
+async function downloadBackupJSON() {
+  if (!currentUser || currentUser.role !== 'admin') {
+    showToast('เฉพาะผู้ดูแลระบบเท่านั้น', 'error');
+    return;
+  }
+  try {
+    const res = await fetch('/api/admin/export', {
+      headers: { 'X-User-Id': currentUser.id }
+    });
+    if (!res.ok) throw new Error('โหลดข้อมูลไม่สำเร็จ');
+    const blob = await res.blob();
+    const date = new Date().toISOString().slice(0, 16).replace(/[T:]/g, '-');
+    triggerDownload(blob, `worldcup-backup-${date}.json`);
+    showToast('ดาวน์โหลด Backup สำเร็จ', 'success');
+  } catch (err) {
+    console.error(err);
+    showToast('ดาวน์โหลดไม่สำเร็จ: ' + err.message, 'error');
+  }
+}
+
+function triggerDownload(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }

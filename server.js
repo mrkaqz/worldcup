@@ -607,6 +607,15 @@ app.post('/api/admin/reset', adminOnly, async (req, res) => {
   res.json({ success: true, message: 'รีเซ็ตระบบเริ่มต้นใหม่และซิงค์ข้อมูลจริงสำเร็จ' });
 });
 
+// Export full database as JSON backup
+app.get('/api/admin/export', adminOnly, (req, res) => {
+  const db = readDB();
+  const timestamp = new Date().toISOString().slice(0, 16).replace(/[T:]/g, '-');
+  res.setHeader('Content-Disposition', `attachment; filename="worldcup-backup-${timestamp}.json"`);
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  res.json(db);
+});
+
 // Catch all for client SPA routing
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));

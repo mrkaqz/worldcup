@@ -920,6 +920,70 @@ tbody tr:hover {
 .bg-danger { background-color: var(--color-danger); }
 
 /* ==========================================================================
+   EXPORT & BACKUP
+   ========================================================================== */
+.export-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.btn-export {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(0, 162, 255, 0.1);
+  border: 1px solid rgba(0, 162, 255, 0.3);
+  color: var(--text-main);
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: var(--font-primary);
+  text-align: left;
+  transition: all var(--transition-fast);
+  flex: 1;
+  min-width: 200px;
+}
+
+.btn-export:hover {
+  background: rgba(0, 162, 255, 0.2);
+  border-color: var(--accent-blue);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 162, 255, 0.2);
+}
+
+.btn-export i {
+  color: var(--accent-blue);
+  flex-shrink: 0;
+}
+
+.btn-export-json {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.btn-export-json:hover {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: var(--color-success);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.2);
+}
+
+.btn-export-json i {
+  color: var(--color-success);
+}
+
+.export-btn-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+}
+
+.export-btn-sub {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
    ADMIN DASHBOARD SPECIFICS
    ========================================================================== */
 .admin-table {
