@@ -746,13 +746,13 @@ function renderLeaderboard() {
 
       if (pred) {
         if (pred === 'team1') {
-          displayVal = '1'; // Team 1 win
+          displayVal = match.team1.substring(0, 3).toUpperCase(); // e.g. MEX
           cellClass = 'pred-team1';
         } else if (pred === 'draw') {
-          displayVal = 'X'; // Draw
+          displayVal = 'Draw'; // Draw
           cellClass = 'pred-draw';
         } else if (pred === 'team2') {
-          displayVal = '2'; // Team 2 win
+          displayVal = match.team2.substring(0, 3).toUpperCase(); // e.g. AUS
           cellClass = 'pred-team2';
         }
 
