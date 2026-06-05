@@ -155,6 +155,36 @@ function setupEventListeners() {
 
   // Admin: Add Match Form Submission
   addMatchForm.addEventListener('submit', handleAddMatch);
+
+  // Admin: Reset Database
+  document.getElementById('reset-db-btn').addEventListener('click', async () => {
+    const confirmReset = confirm('⚠️ คำเตือน: คุณต้องการล้างข้อมูลผู้เล่น คะแนน และผลการทายทั้งหมดในระบบใช่หรือไม่? (บัญชีผู้ดูแลระบบ (Admin) จะไม่ถูกลบ)');
+    if (!confirmReset) return;
+
+    try {
+      const response = await fetch(`${API_URL}/api/admin/reset`, {
+        method: 'POST',
+        headers: {
+          'X-User-Id': currentUser.id
+        }
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        showToast(data.message || 'รีเซ็ตระบบและดึงข้อมูลแข่งขันจริงสำเร็จ!', 'success');
+        // Refresh all local data
+        loadAdminData();
+        loadMatches(true);
+        loadLeaderboard(true);
+        switchTab('predict-tab');
+      } else {
+        showToast(data.message || 'ไม่สามารถรีเซ็ตระบบได้', 'error');
+      }
+    } catch (err) {
+      console.error(err);
+      showToast('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์', 'error');
+    }
+  });
 }
 
 function switchTab(tabId) {

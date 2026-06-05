@@ -554,6 +554,35 @@ app.put('/api/admin/matches/:id/result', adminOnly, (req, res) => {
   res.json({ success: true, match });
 });
 
+// Reset database to initial template and trigger api sync
+app.post('/api/admin/reset', adminOnly, async (req, res) => {
+  const cleanDB = {
+    users: [
+      {
+        id: 'u_admin',
+        username: 'admin',
+        name: 'Administrator',
+        pin: '8888',
+        role: 'admin'
+      }
+    ],
+    matches: [],
+    predictions: []
+  };
+
+  const success = writeDB(cleanDB);
+  if (!success) {
+    return res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาดในการบันทึกข้อมูล' });
+  }
+
+  // Trigger sync in background to re-import official matches immediately
+  syncFromWorldCupAPI().catch(err => {
+    console.error('Error syncing after database reset:', err);
+  });
+
+  res.json({ success: true, message: 'รีเซ็ตระบบเริ่มต้นใหม่และซิงค์ข้อมูลจริงสำเร็จ' });
+});
+
 // Catch all for client SPA routing
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
