@@ -142,11 +142,13 @@ h4 {
   top: 0;
   z-index: 100;
   width: 100%;
+  background: var(--bg-main);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 header {
-  background: rgba(6, 10, 22, 0.8);
-  backdrop-filter: blur(8px);
+  background: transparent;
   border-bottom: 1px solid var(--border-color);
   padding: 1rem 0;
 }
@@ -241,7 +243,7 @@ header {
    NAVIGATION
    ========================================================================== */
 .nav-tabs {
-  background: rgba(15, 25, 48, 0.3);
+  background: transparent;
   border-bottom: 1px solid var(--border-color);
   padding: 0.5rem 0;
 }
