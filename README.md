@@ -30,14 +30,17 @@ To ensure zero downtime data loss, **the application code is separated from the 
 
 ## 🚀 Deployment with Docker Compose (Recommended)
 
+You don't even need to clone this repository to deploy the application! You can simply download the `docker-compose.yml` file and run it. The pre-built image is hosted directly on **GitHub Container Registry (GHCR)**.
+
 Make sure you have [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) installed.
 
-### 1. Build and Start Container
-Deploy the application in detached mode (in the background):
+### 1. Download & Start Container
+Create a directory, grab the `docker-compose.yml` file, and deploy:
+
 ```bash
-docker compose up -d --build
+# Start the application in detached mode (it will pull the image from GHCR)
+docker compose up -d
 ```
-This builds the application image using the optimized `Dockerfile` and starts the app on port `3000`.
 
 ### 2. Verify Deployment
 Ensure the container is running and check its logs:
@@ -55,10 +58,10 @@ docker compose down
 ```
 
 ### 4. Updating the Application
-When you pull new updates or bug fixes from Git, you can safely deploy them with:
+To update the app to the latest version, simply run:
 ```bash
-git pull
-docker compose up -d --build
+docker compose pull
+docker compose up -d
 ```
 Since the `db.json` is kept in a separate Docker volume, **your players, scores, and predictions will not be affected by updates**.
 
@@ -66,7 +69,7 @@ Since the `db.json` is kept in a separate Docker volume, **your players, scores,
 If you want to clear all data and reset the system back to the seed template:
 ```bash
 docker compose down -v
-docker compose up -d --build
+docker compose up -d
 ```
 
 ---

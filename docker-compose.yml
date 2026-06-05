@@ -2,8 +2,7 @@ version: '3.8'
 
 services:
   app:
-    build: .
-    image: worldcup-predictor:latest
+    image: ghcr.io/mrkaqz/worldcup:latest
     container_name: worldcup-predictor
     ports:
       - "3000:3000"
