@@ -65,6 +65,8 @@ body {
 
 main {
   overflow-x: clip;
+  padding-top: 2rem;
+  padding-bottom: 2rem;
 }
 
 .container {
