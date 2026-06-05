@@ -186,7 +186,7 @@
         <!-- Player Management -->
         <div class="glass-card">
           <div class="card-header">
-            <h3><i class="fa-solid fa-users-gear"></i> จัดการผู้เล่น (<span id="player-count">0</span>/30 คน)</h3>
+            <h3><i class="fa-solid fa-users-gear"></i> จัดการผู้เล่น (<span id="player-count">0</span> คน)</h3>
           </div>
           
           <!-- Add Player Form -->
@@ -243,6 +243,22 @@
                 <label>ธงทีมสอง (Emoji)</label>
                 <input type="text" id="match-team2-flag" placeholder="เช่น 🇭🇷" maxlength="4" required>
               </div>
+              <div class="form-group">
+                <label>กลุ่ม (เช่น A, B, R16)</label>
+                <input type="text" id="match-group" placeholder="เช่น A" maxlength="10">
+              </div>
+              <div class="form-group">
+                <label>รอบการแข่งขัน</label>
+                <select id="match-type" style="background: rgba(0, 0, 0, 0.25); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.6rem 0.8rem; color: #ffffff; font-family: var(--font-primary); font-size: 0.9rem; width: 100%;">
+                  <option value="group">รอบแบ่งกลุ่ม (Group Stage)</option>
+                  <option value="r32">รอบ 32 ทีม (Round of 32)</option>
+                  <option value="r16">รอบ 16 ทีม (Round of 16)</option>
+                  <option value="qf">รอบ 8 ทีม (Quarter-finals)</option>
+                  <option value="sf">รอบรองชนะเลิศ (Semi-finals)</option>
+                  <option value="third">รอบชิงอันดับ 3 (Third place)</option>
+                  <option value="final">รอบชิงชนะเลิศ (Final)</option>
+                </select>
+              </div>
               <div class="form-group-full">
                 <label>เวลาแข่งขัน (ตามเวลาไทย)</label>
                 <input type="datetime-local" id="match-kickoff" required>
@@ -291,7 +307,7 @@
   <footer>
     <div class="container footer-content">
       <p>© 2026 FIFA World Cup Predictor App. พัฒนาขึ้นด้วย ❤️ สำหรับความสนุกในหมู่คณะ</p>
-      <p class="current-time-footer">เวลาในระบบขณะนี้: <span id="server-time-display">--:--:--</span></p>
+      <p class="current-time-footer">เวลาในระบบขณะนี้: <span id="server-time-display">--:--:--</span> | v1.1.0</p>
     </div>
   </footer>
 

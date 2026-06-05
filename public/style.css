@@ -1319,3 +1319,140 @@ footer {
   color: var(--border-focus);
   font-weight: 500;
 }
+
+/* ==========================================================================
+   RESPONSIVE DESIGN & MOBILE OPTIMIZATIONS
+   ========================================================================== */
+
+/* Match Badge & Pill styles */
+.match-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.match-badge.knockout {
+  background: rgba(246, 211, 101, 0.1);
+  color: var(--accent-gold);
+  border-color: rgba(246, 211, 101, 0.2);
+}
+
+/* Two-column layout for tablet and desktop viewports */
+@media (min-width: 992px) {
+  .grid-2col {
+    grid-template-columns: 1fr 1.2fr; /* Make prediction matrix slightly wider */
+    align-items: start;
+  }
+}
+
+/* Mobile & Tablet Optimizations */
+@media (max-width: 768px) {
+  .header-container {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: center;
+    text-align: center;
+  }
+
+  .logo {
+    justify-content: center;
+  }
+
+  .tabs-container {
+    overflow-x: auto;
+    padding-bottom: 4px;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .tabs-container::-webkit-scrollbar {
+    display: none; /* Hide scrollbar for a cleaner iOS-like feel */
+  }
+
+  .tab-link {
+    padding: 0.6rem 0.9rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+
+  main {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  .container {
+    padding: 0 1rem;
+  }
+
+  .glass-card {
+    padding: 1.1rem;
+  }
+
+  /* Form row elements stacking */
+  .form-row {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .form-row input {
+    width: 100%;
+  }
+
+  .form-row button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .matches-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .teams-container {
+    gap: 0.65rem;
+  }
+
+  .flag-emoji {
+    font-size: 2.2rem;
+  }
+
+  .flag-img {
+    width: 46px;
+    height: 31px;
+  }
+
+  .team-name {
+    font-size: 0.85rem;
+    max-width: 90px;
+  }
+
+  .live-score {
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+  }
+
+  .predict-btn {
+    padding: 0.5rem 0.2rem;
+    font-size: 0.75rem;
+  }
+
+  .user-status-card {
+    padding: 0.3rem 0.6rem;
+  }
+
+  .user-info .name {
+    font-size: 0.8rem;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+}

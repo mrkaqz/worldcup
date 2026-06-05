@@ -76,12 +76,12 @@ function calculateLeaderboard(db) {
         // Only count finished matches
         if (match.status === 'finished' && match.winner) {
           const pred = userPreds.find(p => p.matchId === match.id);
-          if (pred) {
-            totalPredicted++;
-            if (pred.prediction === match.winner) {
-              points += 1; // 1 point for correct winner/draw
-              correctCount++;
-            }
+          const predictionValue = pred ? pred.prediction : 'draw';
+          
+          totalPredicted++;
+          if (predictionValue === match.winner) {
+            points += 1; // 1 point for correct winner/draw
+            correctCount++;
           }
         }
       });
@@ -191,6 +191,14 @@ async function syncFromWorldCupAPI() {
           console.log(`[API Sync] Match ${match.team1} vs ${match.team2} kickoff updated to ${newKickoff}`);
         }
         
+        // Sync group and type/round
+        if (match.group !== game.group || match.type !== game.type) {
+          match.group = game.group;
+          match.type = game.type;
+          matchUpdated = true;
+          console.log(`[API Sync] Match ${match.team1} vs ${match.team2} group/type updated to ${game.group}/${game.type}`);
+        }
+        
         // If API contains result and match status is not finished, sync it
         if (isFinished && match.status !== 'finished') {
           match.score1 = homeScore;
@@ -231,7 +239,9 @@ async function syncFromWorldCupAPI() {
             score1: homeScore,
             score2: awayScore,
             status: isFinished ? 'finished' : (isLive ? 'live' : 'scheduled'),
-            winner: isFinished ? (homeScore > awayScore ? 'team1' : (awayScore > homeScore ? 'team2' : 'draw')) : null
+            winner: isFinished ? (homeScore > awayScore ? 'team1' : (awayScore > homeScore ? 'team2' : 'draw')) : null,
+            group: game.group,
+            type: game.type
           };
           
           db.matches.push(newMatch);
@@ -293,20 +303,34 @@ app.get('/api/matches', (req, res) => {
     let userPrediction = null;
     if (userId) {
       const pred = db.predictions.find(p => p.userId === userId && p.matchId === match.id);
-      userPrediction = pred ? pred.prediction : null;
+      userPrediction = pred ? pred.prediction : (locked ? 'draw' : null);
     }
 
-    // Get all predictions for this match (always visible)
-    const allPredictions = db.predictions
-      .filter(p => p.matchId === match.id && p.prediction)
-      .map(p => {
-        const u = db.users.find(user => user.id === p.userId);
-        return {
-          userId: p.userId,
-          userName: u ? u.name : 'Unknown',
-          prediction: p.prediction
-        };
-      });
+    // Get all predictions for this match (default to draw when locked)
+    let allPredictions = [];
+    if (locked || match.status === 'finished') {
+      allPredictions = db.users
+        .filter(u => u.role !== 'admin')
+        .map(u => {
+          const pred = db.predictions.find(p => p.userId === u.id && p.matchId === match.id);
+          return {
+            userId: u.id,
+            userName: u.name,
+            prediction: pred ? pred.prediction : 'draw'
+          };
+        });
+    } else {
+      allPredictions = db.predictions
+        .filter(p => p.matchId === match.id && p.prediction)
+        .map(p => {
+          const u = db.users.find(user => user.id === p.userId);
+          return {
+            userId: p.userId,
+            userName: u ? u.name : 'Unknown',
+            prediction: p.prediction
+          };
+        });
+    }
 
     return {
       ...match,
@@ -380,16 +404,18 @@ app.get('/api/leaderboard', (req, res) => {
   const predictionGrid = {};
   db.users.filter(u => u.role !== 'admin').forEach(u => {
     predictionGrid[u.id] = {};
-  });
-
-  db.predictions.forEach(p => {
-    // Share all predictions at all times
-    const match = db.matches.find(m => m.id === p.matchId);
-    if (match) {
-      if (predictionGrid[p.userId]) {
-        predictionGrid[p.userId][p.matchId] = p.prediction;
+    allMatches.forEach(m => {
+      const locked = isMatchLocked(m);
+      if (locked || m.status === 'finished') {
+        const pred = db.predictions.find(p => p.userId === u.id && p.matchId === m.id);
+        predictionGrid[u.id][m.id] = pred ? pred.prediction : 'draw';
+      } else {
+        const pred = db.predictions.find(p => p.userId === u.id && p.matchId === m.id);
+        if (pred) {
+          predictionGrid[u.id][m.id] = pred.prediction;
+        }
       }
-    }
+    });
   });
 
   res.json({
@@ -403,7 +429,9 @@ app.get('/api/leaderboard', (req, res) => {
       winner: m.winner,
       status: m.status,
       score1: m.score1,
-      score2: m.score2
+      score2: m.score2,
+      group: m.group,
+      type: m.type
     })),
     predictionGrid
   });
@@ -441,12 +469,6 @@ app.post('/api/admin/players', adminOnly, (req, res) => {
   }
 
   const db = readDB();
-
-  // Limit check (30 players maximum, excluding admin)
-  const playerCount = db.users.filter(u => u.role === 'player').length;
-  if (playerCount >= 30) {
-    return res.status(400).json({ success: false, message: 'ระบบรองรับผู้เล่นสูงสุด 30 คน' });
-  }
 
   // Check unique username
   const exists = db.users.some(u => u.username.toLowerCase() === username.toLowerCase());
@@ -487,7 +509,7 @@ app.delete('/api/admin/players/:id', adminOnly, (req, res) => {
 
 // Add match
 app.post('/api/admin/matches', adminOnly, (req, res) => {
-  const { team1, team1_flag, team2, team2_flag, kickoff } = req.body;
+  const { team1, team1_flag, team2, team2_flag, kickoff, group, type } = req.body;
   if (!team1 || !team2 || !kickoff) {
     return res.status(400).json({ success: false, message: 'กรุณากรอกข้อมูลให้ครบถ้วน' });
   }
@@ -503,7 +525,9 @@ app.post('/api/admin/matches', adminOnly, (req, res) => {
     score1: null,
     score2: null,
     status: 'scheduled',
-    winner: null
+    winner: null,
+    group: group || '',
+    type: type || 'group'
   };
 
   db.matches.push(newMatch);

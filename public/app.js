@@ -46,6 +46,33 @@ function getFlagHtmlSmall(teamName, defaultFlag) {
   return defaultFlag;
 }
 
+function getGroupRoundLabel(group, type) {
+  if (!group && !type) return '';
+  const t = type ? type.toLowerCase() : '';
+  const g = group ? group.toUpperCase() : '';
+  
+  if (t === 'group') {
+    return g ? `กลุ่ม ${g}` : 'รอบแบ่งกลุ่ม';
+  }
+  
+  switch(t) {
+    case 'r32': return 'รอบ 32 ทีม';
+    case 'r16': return 'รอบ 16 ทีม';
+    case 'qf': return 'รอบ 8 ทีม';
+    case 'sf': return 'รอบรองฯ';
+    case 'third': return 'ชิงอันดับ 3';
+    case 'final': return 'ชิงชนะเลิศ';
+    default:
+      if (g === 'R32') return 'รอบ 32 ทีม';
+      if (g === 'R16') return 'รอบ 16 ทีม';
+      if (g === 'QF') return 'รอบ 8 ทีม';
+      if (g === 'SF') return 'รอบรองฯ';
+      if (g === '3RD') return 'ชิงอันดับ 3';
+      if (g === 'FINAL') return 'ชิงชนะเลิศ';
+      return g || t.toUpperCase();
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initApp();
 });
@@ -495,10 +522,17 @@ function renderMatches() {
       ? `<div class="live-score">${match.score1} - ${match.score2}</div>`
       : `<span class="vs-text">VS</span>`;
 
+    const groupRound = getGroupRoundLabel(match.group, match.type);
+    const knockoutClass = (match.type && match.type.toLowerCase() !== 'group') ? 'knockout' : '';
+    const groupRoundBadgeHtml = groupRound ? `<span class="match-badge ${knockoutClass}">${groupRound}</span>` : '';
+
     return `
       <div class="glass-card match-card ${cardStateClass} animate-fade-in" data-match-id="${match.id}">
         <div class="match-header">
-          <span class="kickoff-time">${kickoffStr}</span>
+          <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+            <span class="kickoff-time">${kickoffStr}</span>
+            ${groupRoundBadgeHtml}
+          </div>
           ${countdownBadgeHtml}
         </div>
         
@@ -927,12 +961,17 @@ async function loadAdminMatches() {
         `;
       }
 
+      const groupRound = getGroupRoundLabel(match.group, match.type);
+      const knockoutClass = (match.type && match.type.toLowerCase() !== 'group') ? 'knockout' : '';
+      const groupRoundBadgeHtml = groupRound ? `<br><span class="match-badge ${knockoutClass}" style="margin-top: 4px; display: inline-block;">${groupRound}</span>` : '';
+
       return `
         <tr class="animate-fade-in">
           <td><small class="text-muted">${date}</small></td>
           <td>
             <strong>${getFlagHtmlSmall(match.team1, match.team1_flag)} ${match.team1}</strong> vs 
             <strong>${getFlagHtmlSmall(match.team2, match.team2_flag)} ${match.team2}</strong>
+            ${groupRoundBadgeHtml}
           </td>
           <td class="text-center">${scoreHtml}</td>
           <td class="text-center">${actionHtml}</td>
@@ -951,6 +990,8 @@ async function handleAddMatch(e) {
   const team1_flag = document.getElementById('match-team1-flag').value.trim();
   const team2 = document.getElementById('match-team2').value.trim();
   const team2_flag = document.getElementById('match-team2-flag').value.trim();
+  const group = document.getElementById('match-group').value.trim();
+  const type = document.getElementById('match-type').value;
   const kickoffStr = document.getElementById('match-kickoff').value;
 
   if (!kickoffStr) {
@@ -968,7 +1009,7 @@ async function handleAddMatch(e) {
         'Content-Type': 'application/json',
         'X-User-Id': currentUser.id
       },
-      body: JSON.stringify({ team1, team1_flag, team2, team2_flag, kickoff })
+      body: JSON.stringify({ team1, team1_flag, team2, team2_flag, group, type, kickoff })
     });
 
     const data = await response.json();
