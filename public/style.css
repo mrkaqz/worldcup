@@ -741,6 +741,7 @@ main {
   overflow-x: auto !important;
   scrollbar-width: auto !important;
   scrollbar-color: #00f2fe rgba(255, 255, 255, 0.05) !important;
+  border-radius: 0;
 }
 
 .matrix-container::-webkit-scrollbar {
@@ -844,6 +845,7 @@ tbody tr:hover {
   left: 0;
   background: #0f182c;
   z-index: 2;
+  border-left: none;
   border-right: 2px solid rgba(255, 255, 255, 0.1);
 }
 
