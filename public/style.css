@@ -65,6 +65,9 @@ body {
 
 main {
   overflow-x: clip;
+}
+
+main.container {
   padding-top: 2rem;
   padding-bottom: 2rem;
 }
@@ -1441,9 +1444,12 @@ footer {
 
   /* Main layout */
   main {
-    padding-top: 1rem;
-    padding-bottom: 1rem;
     overflow-x: clip;
+  }
+
+  main.container {
+    padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
   }
 
   /* Single-column matches on all phone sizes */
