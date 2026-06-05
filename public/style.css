@@ -890,6 +890,7 @@ tbody tr:hover {
 .bg-draw { background-color: #a1c4fd; }
 .bg-team2 { background-color: #fda085; }
 .bg-success { background-color: var(--color-success); }
+.bg-danger { background-color: var(--color-danger); }
 
 /* ==========================================================================
    ADMIN DASHBOARD SPECIFICS
