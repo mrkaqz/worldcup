@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>World Cup 2026 Predictor - ทายผลฟุตบอลโลก 2026</title>
+  <meta name="description" content="ระบบทายผลฟุตบอลโลก World Cup 2026 สำหรับกลุ่มเพื่อน สนุกสนาน ลุ้นแบบเรียลไทม์ พร้อมตารางคะแนนและระบบคำนวณอัตโนมัติ">
+  
+  <!-- Google Fonts: Outfit (English) & Noto Sans Thai (Thai) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;700;900&family=Outfit:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Custom CSS stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Background Elements -->
+  <div class="bg-glow-1"></div>
+  <div class="bg-glow-2"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="container header-container">
+      <div class="logo">
+        <i class="fa-solid fa-trophy trophy-icon"></i>
+        <div>
+          <h1>World Cup 2026</h1>
+          <p class="subtitle">Predictor Pool</p>
+        </div>
+      </div>
+      
+      <div class="header-right">
+        <!-- User Info / Login status -->
+        <div id="user-status" class="user-status-card hidden">
+          <span class="user-avatar"><i class="fa-solid fa-user"></i></span>
+          <div class="user-info">
+            <span id="display-name" class="name">Username</span>
+            <span id="user-role" class="role">Player</span>
+          </div>
+          <button id="logout-btn" class="btn-logout" title="ออกจากระบบ">
+            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          </button>
+        </div>
+        <button id="login-trigger-btn" class="btn-primary login-btn">
+          <i class="fa-solid fa-key"></i> เข้าสู่ระบบ
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="nav-tabs">
+    <div class="container tabs-container">
+      <button class="tab-link active" data-tab="predict-tab">
+        <i class="fa-solid fa-futbol"></i> ทายผลบอล
+      </button>
+      <button class="tab-link" data-tab="leaderboard-tab">
+        <i class="fa-solid fa-ranking-star"></i> ตารางคะแนน & Live
+      </button>
+      <button class="tab-link admin-only hidden" data-tab="admin-tab" id="admin-tab-btn">
+        <i class="fa-solid fa-user-gear"></i> จัดการระบบ (Admin)
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Content Areas -->
+  <main class="container">
+    
+    <!-- NOTIFICATION POPUP -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- 1. LOGIN MODAL / PANEL -->
+    <div id="login-modal" class="modal-overlay hidden">
+      <div class="modal-content glass-card animate-zoom">
+        <div class="modal-header">
+          <h2><i class="fa-solid fa-shield-halved"></i> ยืนยันตัวตนเพื่อเข้าใช้งาน</h2>
+          <button id="close-login-btn" class="btn-close">&times;</button>
+        </div>
+        <form id="login-form">
+          <div class="form-group">
+            <label for="login-username"><i class="fa-solid fa-user"></i> ชื่อผู้ใช้งาน (Username)</label>
+            <input type="text" id="login-username" placeholder="เช่น somchai" required autocomplete="username">
+          </div>
+          <div class="form-group">
+            <label for="login-pin"><i class="fa-solid fa-lock"></i> PIN เข้ารหัส (4 หลัก)</label>
+            <input type="password" id="login-pin" placeholder="••••" maxlength="4" inputmode="numeric" required autocomplete="current-password">
+          </div>
+          <button type="submit" class="btn-submit">
+            <span class="btn-text">เข้าสู่ระบบ</span>
+            <i class="fa-solid fa-circle-notch fa-spin btn-spinner hidden"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- 2. PREDICT TAB -->
+    <section id="predict-tab" class="tab-content active">
+      <div class="section-header">
+        <h2><i class="fa-regular fa-square-check"></i> รายการแข่งขัน & ทายผล</h2>
+        <div class="info-badge">
+          <i class="fa-regular fa-clock"></i> ปิดทายผลก่อนเริ่มแข่ง 15 นาที
+        </div>
+      </div>
+      
+      <!-- Filter buttons for Match state -->
+      <div class="match-filters">
+        <button class="filter-btn active" data-filter="all">ทั้งหมด</button>
+        <button class="filter-btn" data-filter="open">เปิดทายผล</button>
+        <button class="filter-btn" data-filter="locked">ปิดทายผลแล้ว</button>
+        <button class="filter-btn" data-filter="finished">แข่งจบแล้ว</button>
+      </div>
+
+      <!-- Matches Grid -->
+      <div id="matches-grid" class="matches-grid">
+        <!-- Dynamically rendered match cards -->
+        <div class="loading-spinner">
+          <i class="fa-solid fa-circle-notch fa-spin"></i> กำลังโหลดข้อมูล...
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. LEADERBOARD TAB -->
+    <section id="leaderboard-tab" class="tab-content hidden">
+      <div class="grid-2col">
+        <!-- Standings Table -->
+        <div class="glass-card table-card">
+          <div class="card-header">
+            <h3><i class="fa-solid fa-trophy text-gold"></i> ตารางคะแนนผู้เล่น (Leaderboard)</h3>
+            <span class="badge badge-success">Real-time</span>
+          </div>
+          <div class="table-responsive">
+            <table class="leaderboard-table">
+              <thead>
+                <tr>
+                  <th>อันดับ</th>
+                  <th>ผู้ทายผล</th>
+                  <th class="text-center">ทายถูก / ทั้งหมด</th>
+                  <th class="text-right">คะแนนรวม</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboard-body">
+                <!-- Dynamically rendered -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Prediction Grid / Live Compare -->
+        <div class="glass-card grid-compare-card">
+          <div class="card-header">
+            <h3><i class="fa-solid fa-border-all text-blue"></i> ตารางวิเคราะห์เปรียบเทียบ (Matrix)</h3>
+            <span class="badge badge-info">ทายถูก +1 คะแนน</span>
+          </div>
+          <p class="description-text">แสดงผลทายของแต่ละคนในคู่ที่ปิดรับแล้วเพื่อความโปร่งใสและร่วมลุ้นด้วยกัน</p>
+          <div class="table-responsive matrix-container">
+            <table class="matrix-table">
+              <thead>
+                <tr id="matrix-header-row">
+                  <!-- Dynamically rendered header with matches flags -->
+                </tr>
+              </thead>
+              <tbody id="matrix-body">
+                <!-- Dynamically rendered players with predictions -->
+              </tbody>
+            </table>
+          </div>
+          <div class="matrix-legend">
+            <span class="legend-item"><span class="legend-dot bg-team1"></span> ทีมแรกชนะ (1)</span>
+            <span class="legend-item"><span class="legend-dot bg-draw"></span> เสมอ (X)</span>
+            <span class="legend-item"><span class="legend-dot bg-team2"></span> ทีมสองชนะ (2)</span>
+            <span class="legend-item"><span class="legend-dot bg-success"></span> ทายถูก (+3)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. ADMIN TAB -->
+    <section id="admin-tab" class="tab-content hidden">
+      <div class="grid-2col">
+        
+        <!-- Player Management -->
+        <div class="glass-card">
+          <div class="card-header">
+            <h3><i class="fa-solid fa-users-gear"></i> จัดการผู้เล่น (<span id="player-count">0</span>/30 คน)</h3>
+          </div>
+          
+          <!-- Add Player Form -->
+          <form id="add-player-form" class="form-horizontal">
+            <div class="form-row">
+              <input type="text" id="new-player-name" placeholder="ชื่อแสดง (เช่น สมชาย สุดยอด)" required>
+              <input type="text" id="new-player-username" placeholder="Username (เช่น somchai)" required>
+              <input type="text" id="new-player-pin" placeholder="PIN 4 หลัก" maxlength="4" inputmode="numeric" required>
+              <button type="submit" class="btn-primary-glow"><i class="fa-solid fa-user-plus"></i> เพิ่ม</button>
+            </div>
+          </form>
+
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>ชื่อแสดง</th>
+                  <th>Username</th>
+                  <th>PIN</th>
+                  <th class="text-center">การจัดการ</th>
+                </tr>
+              </thead>
+              <tbody id="admin-players-body">
+                <!-- Dynamically rendered players -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Match Result Management -->
+        <div class="glass-card">
+          <div class="card-header">
+            <h3><i class="fa-solid fa-calendar-check"></i> รายการคู่แข่ง & บันทึกผลการแข่งขัน</h3>
+            <button id="add-match-trigger-btn" class="btn-sm-primary"><i class="fa-solid fa-plus"></i> เพิ่มคู่แข่ง</button>
+          </div>
+
+          <!-- Add Match Modal-like overlay (simplified inline) -->
+          <form id="add-match-form" class="inline-form hidden animate-fade-in">
+            <h4><i class="fa-solid fa-plus-circle"></i> เพิ่มคู่แข่งขันใหม่</h4>
+            <div class="form-grid-3">
+              <div class="form-group">
+                <label>ทีมแรก (ทีม 1)</label>
+                <input type="text" id="match-team1" placeholder="เช่น Brazil" required>
+              </div>
+              <div class="form-group">
+                <label>ธงทีมแรก (Emoji)</label>
+                <input type="text" id="match-team1-flag" placeholder="เช่น 🇧🇷" maxlength="4" required>
+              </div>
+              <div class="form-group">
+                <label>ทีมสอง (ทีม 2)</label>
+                <input type="text" id="match-team2" placeholder="เช่น Croatia" required>
+              </div>
+              <div class="form-group">
+                <label>ธงทีมสอง (Emoji)</label>
+                <input type="text" id="match-team2-flag" placeholder="เช่น 🇭🇷" maxlength="4" required>
+              </div>
+              <div class="form-group-full">
+                <label>เวลาแข่งขัน (ตามเวลาไทย)</label>
+                <input type="datetime-local" id="match-kickoff" required>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="button" id="cancel-match-btn" class="btn-secondary">ยกเลิก</button>
+              <button type="submit" class="btn-success">บันทึกคู่แข่งขัน</button>
+            </div>
+          </form>
+
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>เวลาแข่ง (ไทย)</th>
+                  <th>คู่แข่งขัน</th>
+                  <th class="text-center">สกอร์จริง</th>
+                  <th class="text-center">การจัดการ</th>
+                </tr>
+              </thead>
+              <tbody id="admin-matches-body">
+                <!-- Dynamically rendered matches -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container footer-content">
+      <p>© 2026 FIFA World Cup Predictor App. พัฒนาขึ้นด้วย ❤️ สำหรับความสนุกในหมู่คณะ</p>
+      <p class="current-time-footer">เวลาในระบบขณะนี้: <span id="server-time-display">--:--:--</span></p>
+    </div>
+  </footer>
+
+  <!-- Script files -->
+  <script src="app.js"></script>
+</body>
+</html>
