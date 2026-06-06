@@ -401,6 +401,7 @@ async function loadMatches(silent = false) {
     if (!response.ok) throw new Error('Failed to fetch matches');
     
     matchesData = await response.json();
+    updateFilterCounts();
     renderMatches();
   } catch (err) {
     console.error(err);
@@ -415,9 +416,22 @@ async function loadMatches(silent = false) {
   }
 }
 
+function updateFilterCounts() {
+  const counts = {
+    all: matchesData.length,
+    open: matchesData.filter(m => !m.locked && m.status !== 'finished').length,
+    locked: matchesData.filter(m => m.locked && m.status !== 'finished').length,
+    finished: matchesData.filter(m => m.status === 'finished').length,
+  };
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    const countEl = btn.querySelector('.filter-count');
+    if (countEl) countEl.textContent = counts[btn.dataset.filter] ?? '';
+  });
+}
+
 function renderMatches() {
   const grid = document.getElementById('matches-grid');
-  
+
   // Filter matches
   const filteredMatches = matchesData.filter(match => {
     if (matchFilter === 'all') return true;

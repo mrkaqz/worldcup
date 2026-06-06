@@ -367,6 +367,24 @@ main {
   box-shadow: var(--glow-main);
 }
 
+.filter-count {
+  display: inline-block;
+  min-width: 1.35em;
+  padding: 0 0.35em;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.5;
+  text-align: center;
+  vertical-align: middle;
+  margin-left: 0.15em;
+}
+
+.filter-btn.active .filter-count {
+  background: rgba(15, 23, 42, 0.25);
+}
+
 .matches-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(350px, 100%), 1fr));
