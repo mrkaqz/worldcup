@@ -462,6 +462,15 @@ function updateFilterCounts() {
 function renderMatches() {
   const grid = document.getElementById('matches-grid');
 
+  // Preserve which accordions are open before re-rendering
+  const openAccordions = new Set();
+  grid.querySelectorAll('.match-card').forEach(card => {
+    const list = card.querySelector('.predictions-summary-list');
+    if (list && !list.classList.contains('hidden')) {
+      openAccordions.add(card.dataset.matchId);
+    }
+  });
+
   // Filter matches
   const filteredMatches = matchesData.filter(match => {
     if (matchFilter === 'all') return true;
@@ -628,6 +637,18 @@ function renderMatches() {
   }).join('');
 
   grid.innerHTML = cardsHtml;
+
+  // Restore previously open accordions
+  if (openAccordions.size > 0) {
+    grid.querySelectorAll('.match-card').forEach(card => {
+      if (openAccordions.has(card.dataset.matchId)) {
+        const list = card.querySelector('.predictions-summary-list');
+        const icon = card.querySelector('.accordion-trigger .fa-chevron-down');
+        if (list) list.classList.remove('hidden');
+        if (icon) icon.className = 'fa-solid fa-chevron-up';
+      }
+    });
+  }
 }
 
 // Global function to support inline accordion clicks
