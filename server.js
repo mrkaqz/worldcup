@@ -69,47 +69,62 @@ function isMatchLocked(match) {
 
 // Helper to calculate leaderboard
 function calculateLeaderboard(db) {
-  const leaderboard = db.users
+  const PRIZE_PCTS = [50, 30, 20]; // prize % for 1st, 2nd, 3rd
+
+  const sorted = db.users
     .filter(u => u.role !== 'admin')
     .map(user => {
       let points = 0;
       let correctCount = 0;
       let totalPredicted = 0;
 
-      // Find all predictions for this user
       const userPreds = db.predictions.filter(p => p.userId === user.id);
 
-      // Process matches
       db.matches.forEach(match => {
-        // Only count finished matches
         if (match.status === 'finished' && match.winner) {
           const pred = userPreds.find(p => p.matchId === match.id);
           const predictionValue = pred ? pred.prediction : 'draw';
-          
           totalPredicted++;
           if (predictionValue === match.winner) {
-            points += 1; // 1 point for correct winner/draw
+            points += 1;
             correctCount++;
           }
         }
       });
 
-      return {
-        id: user.id,
-        name: user.name,
-        username: user.username,
-        points,
-        correctCount,
-        totalPredicted
-      };
+      return { id: user.id, name: user.name, username: user.username, points, correctCount, totalPredicted };
+    })
+    .sort((a, b) => {
+      if (b.points !== a.points) return b.points - a.points;
+      return b.correctCount - a.correctCount;
+      // no name tiebreaker — equal scores share the same rank
     });
 
-  // Sort: points (desc), correctCount (desc), name (asc)
-  return leaderboard.sort((a, b) => {
-    if (b.points !== a.points) return b.points - a.points;
-    if (b.correctCount !== a.correctCount) return b.correctCount - a.correctCount;
-    return a.name.localeCompare(b.name, 'th');
-  });
+  // Assign rank and split prize % for tied groups
+  let i = 0;
+  while (i < sorted.length) {
+    let j = i;
+    while (j < sorted.length &&
+           sorted[j].points === sorted[i].points &&
+           sorted[j].correctCount === sorted[i].correctCount) {
+      j++;
+    }
+    const rank = i + 1;
+    const groupSize = j - i;
+    // Sum prize % for all positions this group occupies
+    let combinedPct = 0;
+    for (let k = i; k < j && k < PRIZE_PCTS.length; k++) {
+      combinedPct += PRIZE_PCTS[k];
+    }
+    const splitPct = combinedPct > 0 ? combinedPct / groupSize : 0;
+    for (let k = i; k < j; k++) {
+      sorted[k].rank = rank;
+      sorted[k].prizePct = splitPct;
+    }
+    i = j;
+  }
+
+  return sorted;
 }
 
 // --- WORLD CUP API SYNC ---

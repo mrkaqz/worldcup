@@ -838,6 +838,17 @@ tbody tr:hover {
 .top-rank-2 .rank-number { background: #c0c0c0; color: #000; }
 .top-rank-3 .rank-number { background: #cd7f32; color: #000; }
 
+.prize-cell { white-space: nowrap; }
+.prize-pct {
+  display: inline-block;
+  padding: 0.15em 0.55em;
+  border-radius: 12px;
+  background: rgba(253, 160, 133, 0.15);
+  color: #fda085;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
 .description-text {
   font-size: 0.8rem;
   color: var(--text-muted);

@@ -751,16 +751,16 @@ function renderLeaderboard() {
   // Render leaderboard standings table
   const body = document.getElementById('leaderboard-body');
   if (leaderboard.length === 0) {
-    body.innerHTML = `<tr><td colspan="4" class="text-center text-muted">ยังไม่มีรายชื่อผู้ทายผลในระบบ</td></tr>`;
+    body.innerHTML = `<tr><td colspan="5" class="text-center text-muted">ยังไม่มีรายชื่อผู้ทายผลในระบบ</td></tr>`;
   } else {
-    body.innerHTML = leaderboard.map((player, index) => {
-      const rank = index + 1;
+    body.innerHTML = leaderboard.map(player => {
+      const rank = player.rank;
       let rankClass = '';
       if (rank === 1) rankClass = 'top-rank-1';
       else if (rank === 2) rankClass = 'top-rank-2';
       else if (rank === 3) rankClass = 'top-rank-3';
 
-      const trophyHtml = rank === 1
+      const medalHtml = rank === 1
         ? ' <i class="fa-solid fa-medal" style="color:#ffd700;"></i>'
         : rank === 2
         ? ' <i class="fa-solid fa-medal" style="color:#c0c0c0;"></i>'
@@ -768,12 +768,19 @@ function renderLeaderboard() {
         ? ' <i class="fa-solid fa-medal" style="color:#cd7f32;"></i>'
         : '';
 
+      let prizeHtml = '--';
+      if (player.prizePct > 0) {
+        const pct = Number.isInteger(player.prizePct) ? player.prizePct : player.prizePct.toFixed(1);
+        prizeHtml = `<span class="prize-pct">${pct}%</span>`;
+      }
+
       return `
         <tr class="${rankClass} animate-fade-in">
           <td><span class="rank-number">${rank}</span></td>
-          <td>${player.name}${trophyHtml}</td>
+          <td>${player.name}${medalHtml}</td>
           <td class="text-center font-bold">${player.correctCount} / ${player.totalPredicted}</td>
           <td class="text-right text-gold font-bold" style="font-size:1.1rem;">${player.points} pt</td>
+          <td class="text-right prize-cell">${prizeHtml}</td>
         </tr>
       `;
     }).join('');
