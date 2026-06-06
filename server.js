@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+const { version } = require('./package.json');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -307,6 +308,11 @@ app.post('/api/login', (req, res) => {
       role: user.role
     }
   });
+});
+
+// App version (read from package.json — single source of truth)
+app.get('/api/version', (req, res) => {
+  res.json({ version });
 });
 
 // Get matches (with prediction status for current user)

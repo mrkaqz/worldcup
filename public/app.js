@@ -91,9 +91,21 @@ function initApp() {
   // Load Initial Data
   loadMatches();
   loadLeaderboard();
+  loadVersion();
 
   // Start Background Timers
   startTimers();
+}
+
+async function loadVersion() {
+  try {
+    const res = await fetch(`${API_URL}/api/version`);
+    const { version } = await res.json();
+    const el = document.getElementById('app-version');
+    if (el) el.textContent = version;
+  } catch (e) {
+    // silently ignore — version display is cosmetic
+  }
 }
 
 // ==========================================================================

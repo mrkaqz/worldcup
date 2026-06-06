@@ -129,14 +129,13 @@ The server syncs live match data from `https://worldcup26.ir/get/games` on start
 
 ## Version Bumping
 
-The version appears in **two places** — both must be updated together:
+The version is defined in **one place only**:
 
 1. `package.json` → `"version"` field
-2. `public/index.html` → footer line containing `v2.x.x`
 
-Forgetting either means the displayed version in the app footer won't match the actual release.
+The server exposes it via `GET /api/version`, and the frontend fetches it on load to populate the footer `<span id="app-version">`. No need to update `index.html` manually.
 
-**Current version: v2.1.1**
+**Current version: v2.1.2**
 
 ---
 
