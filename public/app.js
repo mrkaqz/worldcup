@@ -846,9 +846,12 @@ async function loadAdminPlayers() {
         <tr class="animate-fade-in">
           <td><strong>${player.name}</strong></td>
           <td><code>${player.username}</code></td>
-          <td><code>${player.pin}</code></td>
-          <td class="text-center">
-            <button class="btn-sm-danger" onclick="deletePlayer('${player.id}', '${player.name}')">
+          <td id="pin-cell-${player.id}"><code>${player.pin}</code></td>
+          <td class="text-center" style="white-space:nowrap;">
+            <button class="btn-sm-primary" onclick="showChangePinInline('${player.id}', '${player.name.replace(/'/g, "\\'")}')">
+              <i class="fa-solid fa-key"></i> PIN
+            </button>
+            <button class="btn-sm-danger" onclick="deletePlayer('${player.id}', '${player.name.replace(/'/g, "\\'")}')">
               <i class="fa-regular fa-trash-can"></i> ลบ
             </button>
           </td>
@@ -1100,6 +1103,94 @@ async function resetMatchResult(matchId) {
   } catch (err) {
     console.error(err);
     showToast('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์', 'error');
+  }
+}
+
+// ==========================================================================
+// PIN MANAGEMENT
+// ==========================================================================
+
+function showChangePinInline(playerId, playerName) {
+  const cell = document.getElementById(`pin-cell-${playerId}`);
+  if (!cell) return;
+  cell.innerHTML = `
+    <div style="display:flex;gap:0.35rem;align-items:center;">
+      <input type="text" id="pin-input-${playerId}" maxlength="4" inputmode="numeric"
+        placeholder="4 หลัก"
+        style="width:68px;padding:0.25rem 0.4rem;border-radius:6px;
+               background:rgba(0,0,0,0.3);border:1px solid rgba(0,242,254,0.4);
+               color:#fff;font-family:var(--font-primary);font-size:0.85rem;text-align:center;"
+        onkeydown="if(event.key==='Enter')submitPinChange('${playerId}','${playerName.replace(/'/g, "\\'")}');
+                   if(event.key==='Escape')loadAdminPlayers();">
+      <button class="btn-sm-success" title="บันทึก"
+        onclick="submitPinChange('${playerId}', '${playerName.replace(/'/g, "\\'")}')">
+        <i class="fa-solid fa-check"></i>
+      </button>
+      <button class="btn-sm-ghost" title="ยกเลิก" onclick="loadAdminPlayers()">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>`;
+  const input = document.getElementById(`pin-input-${playerId}`);
+  if (input) input.focus();
+}
+
+async function submitPinChange(playerId, playerName) {
+  const input = document.getElementById(`pin-input-${playerId}`);
+  if (!input) return;
+  const newPin = input.value.trim();
+
+  if (!/^\d{4}$/.test(newPin)) {
+    showToast('PIN ต้องเป็นตัวเลข 4 หลักเท่านั้น', 'error');
+    input.focus();
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/api/admin/players/${playerId}/pin`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'X-User-Id': currentUser.id },
+      body: JSON.stringify({ pin: newPin })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast(`เปลี่ยน PIN ของ ${playerName} สำเร็จ`, 'success');
+      loadAdminPlayers();
+    } else {
+      showToast(data.message || 'เปลี่ยน PIN ไม่สำเร็จ', 'error');
+    }
+  } catch (err) {
+    console.error(err);
+    showToast('เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
+  }
+}
+
+async function submitAdminPinChange() {
+  const input = document.getElementById('admin-self-pin-input');
+  if (!input) return;
+  const newPin = input.value.trim();
+
+  if (!/^\d{4}$/.test(newPin)) {
+    showToast('PIN ต้องเป็นตัวเลข 4 หลักเท่านั้น', 'error');
+    input.focus();
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_URL}/api/admin/players/${currentUser.id}/pin`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', 'X-User-Id': currentUser.id },
+      body: JSON.stringify({ pin: newPin })
+    });
+    const data = await res.json();
+    if (data.success) {
+      showToast('เปลี่ยน PIN ของ Admin สำเร็จ', 'success');
+      input.value = '';
+    } else {
+      showToast(data.message || 'เปลี่ยน PIN ไม่สำเร็จ', 'error');
+    }
+  } catch (err) {
+    console.error(err);
+    showToast('เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
   }
 }
 

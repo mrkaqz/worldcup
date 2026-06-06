@@ -489,6 +489,26 @@ app.post('/api/admin/players', adminOnly, (req, res) => {
   res.json({ success: true, player: newPlayer });
 });
 
+// Change PIN for any user (player or admin)
+app.patch('/api/admin/players/:id/pin', adminOnly, (req, res) => {
+  const { id } = req.params;
+  const { pin } = req.body;
+
+  if (!pin || !/^\d{4}$/.test(pin)) {
+    return res.status(400).json({ success: false, message: 'PIN ต้องเป็นตัวเลข 4 หลักเท่านั้น' });
+  }
+
+  const db = readDB();
+  const user = db.users.find(u => u.id === id);
+  if (!user) {
+    return res.status(404).json({ success: false, message: 'ไม่พบผู้ใช้นี้' });
+  }
+
+  user.pin = pin;
+  writeDB(db);
+  res.json({ success: true, message: `เปลี่ยน PIN ของ ${user.name} สำเร็จ` });
+});
+
 // Remove player
 app.delete('/api/admin/players/:id', adminOnly, (req, res) => {
   const { id } = req.params;

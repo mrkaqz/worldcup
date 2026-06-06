@@ -216,6 +216,17 @@
               </tbody>
             </table>
           </div>
+
+          <!-- Change Admin PIN -->
+          <div class="admin-self-pin">
+            <span class="admin-self-pin-label"><i class="fa-solid fa-user-shield"></i> เปลี่ยน PIN ของ Admin</span>
+            <input type="password" id="admin-self-pin-input" maxlength="4" inputmode="numeric"
+              placeholder="PIN ใหม่ 4 หลัก"
+              onkeydown="if(event.key==='Enter')submitAdminPinChange()">
+            <button class="btn-sm-success" onclick="submitAdminPinChange()">
+              <i class="fa-solid fa-check"></i> บันทึก
+            </button>
+          </div>
         </div>
 
         <!-- Match Result Management -->
@@ -333,7 +344,7 @@
   <footer>
     <div class="container footer-content">
       <p>© 2026 FIFA World Cup Predictor App. พัฒนาขึ้นด้วย ❤️ สำหรับความสนุกในหมู่คณะ</p>
-      <p class="current-time-footer">เวลาในระบบขณะนี้: <span id="server-time-display">--:--:--</span> | v2.0.1</p>
+      <p class="current-time-footer">เวลาในระบบขณะนี้: <span id="server-time-display">--:--:--</span> | v2.1.0</p>
     </div>
   </footer>
 
