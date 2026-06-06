@@ -1,6 +1,6 @@
 # 🏆 World Cup 2026 Predictor Pool
 
-A premium, real-time prediction pool application designed for groups of friends or coworkers (supporting up to 30 players) to compete during the **FIFA World Cup 2026**.
+A premium, real-time prediction pool application designed for groups of friends or coworkers to compete during the **FIFA World Cup 2026**.
 
 Featuring a sleek, glassmorphic dark theme ("Midnight Neon"), automatic background schedule/score syncing, real-time leaderboard standings, a full comparative prediction matrix grid, and a complete export & backup system.
 
@@ -15,7 +15,7 @@ Featuring a sleek, glassmorphic dark theme ("Midnight Neon"), automatic backgrou
 - **📊 Real-time Leaderboard:** Standings calculated dynamically — 1 point per correct outcome. Updates every 15 seconds.
 - **🕸️ Analysis Matrix:** A horizontally-scrollable comparison grid showing everyone's predictions side-by-side with a sticky player-name column.
 - **🔄 Auto API Sync:** Automatically fetches real-time scores, match schedules, and results from the official World Cup API every 5 minutes.
-- **🛠️ Admin Panel:** Manage players (up to 30), manually add custom matches, record actual scores, and access export tools.
+- **🛠️ Admin Panel:** Manage players, manually add custom matches, record actual scores, and access export tools.
 - **📤 Export & Backup System:** Download predictions as a CSV (opens in Excel with full Thai character support) or export the full database as a JSON backup for disaster recovery.
 - **📱 Mobile-Optimised:** Fully responsive layout across all screen sizes — match cards, leaderboard, and matrix all work cleanly on phones and tablets.
 
