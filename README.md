@@ -4,7 +4,6 @@ A premium, real-time prediction pool application designed for groups of friends 
 
 Featuring a sleek, glassmorphic dark theme ("Midnight Neon"), automatic background schedule/score syncing, real-time leaderboard standings, a full comparative prediction matrix grid, and a complete export & backup system.
 
-**Live at:** [wp.ronnarong.dev](https://wp.ronnarong.dev)
 
 ---
 
