@@ -263,6 +263,20 @@ function switchTab(tabId) {
   } else if (tabId === 'predict-tab') {
     loadMatches();
   }
+
+  // Track tab switch as virtual pageview in Google Analytics
+  const tabTitles = {
+    'predict-tab': 'รายการแข่งขัน & ทายผล',
+    'leaderboard-tab': 'ตารางคะแนนผู้เล่น',
+    'admin-tab': 'แอดมิน'
+  };
+  if (typeof gtag === 'function') {
+    gtag('event', 'page_view', {
+      page_title: tabTitles[tabId] || tabId,
+      page_location: window.location.href,
+      page_path: '/#' + tabId
+    });
+  }
 }
 
 // ==========================================================================
