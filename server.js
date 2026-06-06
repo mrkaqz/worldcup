@@ -119,6 +119,17 @@ const flagsMap = {
   'Panama': '🇵🇦', 'Ivory Coast': '🇨🇮'
 };
 
+// Helper to compare team names symmetrically, handling alternative naming conventions
+function isSameTeam(name1, name2) {
+  if (!name1 || !name2) return false;
+  const n1 = name1.toLowerCase().trim();
+  const n2 = name2.toLowerCase().trim();
+  if (n1 === n2) return true;
+  if ((n1 === 'united states' || n1 === 'usa') && (n2 === 'united states' || n2 === 'usa')) return true;
+  if ((n1 === 'czech republic' || n1 === 'czechia') && (n2 === 'czech republic' || n2 === 'czechia')) return true;
+  return false;
+}
+
 function getOffsetForStadium(stadiumId) {
   const eastern = ['8', '7', '9', '10', '11', '12'];
   const centralUS = ['5', '6', '4'];
@@ -171,18 +182,11 @@ async function syncFromWorldCupAPI() {
       
       if (!homeTeam || !awayTeam) return;
       
-      // Match using team names
+      // Match using team names symmetrically
       let match = db.matches.find(m => 
-        (m.team1.toLowerCase() === homeTeam.toLowerCase() || (homeTeam.toLowerCase() === 'united states' && m.team1.toLowerCase() === 'usa')) &&
-        (m.team2.toLowerCase() === awayTeam.toLowerCase() || (awayTeam.toLowerCase() === 'czech republic' && m.team2.toLowerCase() === 'czechia'))
+        isSameTeam(m.team1, homeTeam) &&
+        isSameTeam(m.team2, awayTeam)
       );
-      
-      if (!match) {
-        match = db.matches.find(m => 
-          (m.team1.toLowerCase() === homeTeam.toLowerCase() || (homeTeam.toLowerCase() === 'united states' && m.team1.toLowerCase() === 'usa')) &&
-          (m.team2.toLowerCase() === awayTeam.toLowerCase())
-        );
-      }
       
       const isFinished = game.finished === 'TRUE';
       const isLive = game.time_elapsed !== 'notstarted' && !isFinished;
