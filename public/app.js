@@ -426,9 +426,13 @@ async function loadMatches(silent = false) {
     const response = await fetch(`${API_URL}/api/matches`, { headers });
     if (!response.ok) throw new Error('Failed to fetch matches');
     
-    matchesData = await response.json();
+    const newData = await response.json();
+    const hasChanged = JSON.stringify(newData) !== JSON.stringify(matchesData);
+    matchesData = newData;
     updateFilterCounts();
-    renderMatches();
+    if (!silent || hasChanged) {
+      renderMatches();
+    }
   } catch (err) {
     console.error(err);
     if (!silent) {
@@ -747,8 +751,12 @@ async function loadLeaderboard(silent = false) {
     const response = await fetch(`${API_URL}/api/leaderboard`);
     if (!response.ok) throw new Error('Failed to fetch leaderboard');
     
-    leaderboardData = await response.json();
-    renderLeaderboard();
+    const newLeaderboard = await response.json();
+    const leaderboardChanged = JSON.stringify(newLeaderboard) !== JSON.stringify(leaderboardData);
+    leaderboardData = newLeaderboard;
+    if (!silent || leaderboardChanged) {
+      renderLeaderboard();
+    }
   } catch (err) {
     console.error(err);
     if (!silent) {
