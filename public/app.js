@@ -760,7 +760,13 @@ function renderLeaderboard() {
       else if (rank === 2) rankClass = 'top-rank-2';
       else if (rank === 3) rankClass = 'top-rank-3';
 
-      const trophyHtml = rank === 1 ? ' <i class="fa-solid fa-trophy text-gold"></i>' : '';
+      const trophyHtml = rank === 1
+        ? ' <i class="fa-solid fa-medal" style="color:#ffd700;"></i>'
+        : rank === 2
+        ? ' <i class="fa-solid fa-medal" style="color:#c0c0c0;"></i>'
+        : rank === 3
+        ? ' <i class="fa-solid fa-medal" style="color:#cd7f32;"></i>'
+        : '';
 
       return `
         <tr class="${rankClass} animate-fade-in">
