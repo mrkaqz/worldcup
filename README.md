@@ -2,7 +2,9 @@
 
 A premium, real-time prediction pool application designed for groups of friends or coworkers (supporting up to 30 players) to compete during the **FIFA World Cup 2026**.
 
-Featuring a sleek, glassmorphic dark theme ("Midnight Neon"), automatic background schedule/score syncing, real-time leaderboard standings, and a full comparative prediction matrix grid.
+Featuring a sleek, glassmorphic dark theme ("Midnight Neon"), automatic background schedule/score syncing, real-time leaderboard standings, a full comparative prediction matrix grid, and a complete export & backup system.
+
+**Live at:** [wp.ronnarong.dev](https://wp.ronnarong.dev)
 
 ---
 
@@ -10,32 +12,51 @@ Featuring a sleek, glassmorphic dark theme ("Midnight Neon"), automatic backgrou
 
 - **🔐 PIN-based Login:** Simple secure login using a username and 4-digit PIN (no complex signup needed).
 - **⏱️ Locked Predictions:** Predictions are automatically locked **15 minutes before kickoff** (Bangkok local time).
-- **📊 Real-time Leaderboard:** Standings are calculated dynamically (1 point for correct outcome, 0 points for incorrect prediction).
-- **🕸️ Analysis Matrix:** A scrollable comparison grid showing everyone's predictions side-by-side once a match kicks off.
-- **🔄 Auto API Sync:** Automatically fetches real-time scores, match schedules, and updates directly from the official World Cup API in the background.
-- **🛠️ Admin Panel:** Dedicated tools to manage players (up to 30), manually add custom matches, and record actual scores if needed.
+- **📊 Real-time Leaderboard:** Standings calculated dynamically — 1 point per correct outcome. Updates every 15 seconds.
+- **🕸️ Analysis Matrix:** A horizontally-scrollable comparison grid showing everyone's predictions side-by-side with a sticky player-name column.
+- **🔄 Auto API Sync:** Automatically fetches real-time scores, match schedules, and results from the official World Cup API every 5 minutes.
+- **🛠️ Admin Panel:** Manage players (up to 30), manually add custom matches, record actual scores, and access export tools.
+- **📤 Export & Backup System:** Download predictions as a CSV (opens in Excel with full Thai character support) or export the full database as a JSON backup for disaster recovery.
+- **📱 Mobile-Optimised:** Fully responsive layout across all screen sizes — match cards, leaderboard, and matrix all work cleanly on phones and tablets.
+
+---
+
+## 🖥️ Screenshots
+
+| Predict Tab | Leaderboard & Matrix | Admin Panel |
+|---|---|---|
+| Match cards with predict buttons | Live standings + prediction comparison | Player management + score entry |
 
 ---
 
 ## 🏗️ Architecture & Docker Persistence
 
-To ensure zero downtime data loss, **the application code is separated from the database storage (`db.json`)**:
+To ensure zero-downtime data loss, **the application code is separated from the database storage (`db.json`)**:
 
 - The Docker container holds only the server logic and static web assets.
 - A persistent named Docker volume (`worldcup-data`) is mounted at `/app/data/`.
 - The database `db.json` is stored inside this volume.
-- **Auto-Seeding:** If you run the container for the first time and the volume is empty, the app will automatically seed the volume with the default `db.json` template (containing all preloaded matches and country flag configurations) so that no configuration is required.
+- **Auto-Seeding:** On first run with an empty volume, the app automatically seeds it with the default `db.json` template (preloaded matches + country flags) so no manual configuration is required.
+
+### Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Frontend | Vanilla HTML + CSS + JS (no framework) |
+| Backend | Node.js + Express |
+| Database | JSON flat-file (`db.json`) |
+| Container | Docker (`node:20-alpine`) |
+| CI/CD | GitHub Actions → GHCR (`ghcr.io/mrkaqz/worldcup:latest`) |
 
 ---
 
 ## 🚀 Deployment with Docker Compose (Recommended)
 
-You don't even need to clone this repository to deploy the application! You can simply download the `docker-compose.yml` file and run it. The pre-built image is hosted directly on **GitHub Container Registry (GHCR)**.
+You don't even need to clone this repository to deploy the application. Simply use the `docker-compose.yml` file and run it. The pre-built multi-arch image (`linux/amd64` + `linux/arm64`) is hosted on **GitHub Container Registry (GHCR)**.
 
 Make sure you have [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) installed.
 
 ### 1. Download & Start Container
-Create a directory, grab the `docker-compose.yml` file, and deploy:
 
 ```bash
 # Start the application in detached mode (it will pull the image from GHCR)
@@ -43,30 +64,31 @@ docker compose up -d
 ```
 
 ### 2. Verify Deployment
-Ensure the container is running and check its logs:
+
 ```bash
 docker compose ps
 docker compose logs -f
 ```
 
-The app will now be available at **`http://localhost:3000`**.
+The app will be available at **`http://localhost:3000`**.
 
 ### 3. Stop Container
-To stop the application without losing any data or predictions:
+
 ```bash
 docker compose down
 ```
 
-### 4. Updating the Application
-To update the app to the latest version, simply run:
+### 4. Updating to the Latest Version
+
 ```bash
 docker compose pull
 docker compose up -d
 ```
-Since the `db.json` is kept in a separate Docker volume, **your players, scores, and predictions will not be affected by updates**.
+
+Since `db.json` lives in a separate Docker volume, **your players, scores, and predictions are never affected by updates**.
 
 ### 5. Completely Reset Data (Danger)
-If you want to clear all data and reset the system back to the seed template:
+
 ```bash
 docker compose down -v
 docker compose up -d
@@ -74,35 +96,45 @@ docker compose up -d
 
 ---
 
+## 📤 Export & Backup
+
+The Admin panel includes an **Export & Backup** section with two options:
+
+| Button | Output | Format |
+|--------|--------|--------|
+| **ส่งออก Excel / CSV** | Leaderboard standings + full prediction matrix | `.csv` with UTF-8 BOM (Thai characters render correctly in Excel) |
+| **สำรองฐานข้อมูล (JSON)** | Complete raw database snapshot | `.json` — restore by replacing `db.json` in the Docker volume |
+
+> Both options require admin login.
+
+---
+
 ## 🛠️ Local Development (Without Docker)
 
-If you prefer to run the Node.js server directly on your host machine:
-
-### Prerequisite
-Install [Node.js](https://nodejs.org/) (v18 or newer).
+### Prerequisites
+- [Node.js](https://nodejs.org/) v18 or newer
 
 ### Installation
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
-2. Start the development server:
-   ```bash
-   npm run dev
-   ```
-3. Open **`http://localhost:3000`** in your browser.
+
+```bash
+# Install dependencies
+npm install
+
+# Start the development server
+npm run dev
+```
+
+Open **`http://localhost:3000`** in your browser.
 
 ---
 
 ## ⚙️ Configuration (Environment Variables)
 
-The following environment variables can be configured inside `docker-compose.yml`:
-
-| Environment Variable | Description | Default Value |
-|----------------------|-------------|---------------|
+| Variable | Description | Default |
+|----------|-------------|---------|
 | `PORT` | Port the web server listens on | `3000` |
-| `DB_PATH` | Path where the JSON database is stored | `/app/data/db.json` |
-| `NODE_ENV` | Mode of execution (`production` or `development`) | `production` |
+| `DB_PATH` | Path where `db.json` is stored | `/app/data/db.json` |
+| `NODE_ENV` | Execution mode | `production` |
 
 ---
 
@@ -110,14 +142,42 @@ The following environment variables can be configured inside `docker-compose.yml
 
 ```
 ├── .github/workflows/
-│   └── docker-build.yml     # Auto-Build CI Workflow
-├── public/                  # Frontend Web Assets
-│   ├── index.html           # Main Layout & SEO structure
-│   ├── app.js               # Frontend controller & WebSockets/polling logic
-│   └── style.css            # Stylesheets (Midnight Neon Theme)
-├── db.json                  # Seed/Template Database
-├── Dockerfile               # Production Dockerfile
-├── docker-compose.yml       # Docker Compose Configuration
-├── package.json             # App Metadata & Dependencies
-└── server.js                # Express REST API & Background API Score Sync Job
+│   └── docker-build.yml     # CI: builds multi-arch Docker image on push to main
+├── public/
+│   ├── index.html           # Single-page app shell + all markup
+│   ├── app.js               # SPA logic: polling, rendering, predictions, export
+│   └── style.css            # Midnight Neon theme + responsive breakpoints
+├── CLAUDE.md                # Codebase guide for AI-assisted development
+├── db.json                  # Seed / template database
+├── Dockerfile               # node:20-alpine, port 3000
+├── docker-compose.yml       # Production compose with persistent volume
+├── package.json             # Dependencies + version string
+└── server.js                # Express REST API + background score-sync job
 ```
+
+---
+
+## 🔄 CI/CD Flow
+
+1. Push to `main` → GitHub Actions triggers `.github/workflows/docker-build.yml`
+2. Builds `linux/amd64` + `linux/arm64` image
+3. Pushes to `ghcr.io/mrkaqz/worldcup:latest` and `ghcr.io/mrkaqz/worldcup:sha-<short>`
+4. On your server: `docker compose pull && docker compose up -d`
+
+Monitor builds at: [github.com/mrkaqz/worldcup/actions](https://github.com/mrkaqz/worldcup/actions)
+
+---
+
+## 📝 Version History
+
+| Version | Highlights |
+|---------|-----------|
+| v2.0.1 | Fix CSV prediction matrix showing empty columns |
+| v2.0.0 | Export & Backup system (CSV + JSON download) |
+| v1.9.0 | Fix nav-to-content gap (CSS specificity fix for `main.container`) |
+| v1.8.0 | Fix matrix sticky column gap / content bleed-through |
+| v1.7.0 | Opaque sticky nav — prevents page content showing through tab bar when scrolling |
+| v1.6.0 | Add top/bottom padding to main content area |
+| v1.5.0 | Increase card padding and card-header spacing |
+| v1.4.0 | Mobile overflow fixes — match cards, predict buttons, teams layout |
+| v1.3.0 | Sticky header + nav improvements |
