@@ -154,7 +154,17 @@ async function syncFromWorldCupAPI() {
     
     const db = readDB();
     let updated = false;
-    
+
+    // Deduplicate existing matches by id (keep the last/most-complete copy)
+    const matchMap = new Map();
+    db.matches.forEach(m => matchMap.set(m.id, m));
+    const before = db.matches.length;
+    db.matches = Array.from(matchMap.values());
+    if (db.matches.length < before) {
+      console.log(`[API Sync] Removed ${before - db.matches.length} duplicate match entries from db`);
+      updated = true;
+    }
+
     data.games.forEach(game => {
       const homeTeam = game.home_team_name_en;
       const awayTeam = game.away_team_name_en;
@@ -228,9 +238,13 @@ async function syncFromWorldCupAPI() {
                               awayTeam.includes('Winner') || awayTeam.includes('Runner-up') || awayTeam.includes('3rd');
                               
         if (!isPlaceholder) {
+          const candidateId = 'm_' + (game.id || Date.now().toString(36).substr(-4));
+          // Skip if a match with this id already exists (prevents duplicates)
+          if (db.matches.some(m => m.id === candidateId)) return;
+
           const newKickoff = parseAPIDate(game.local_date, game.stadium_id);
           const newMatch = {
-            id: 'm_' + (game.id || Date.now().toString(36).substr(-4)),
+            id: candidateId,
             team1: homeTeam === 'United States' ? 'USA' : (homeTeam === 'Czech Republic' ? 'Czechia' : homeTeam),
             team1_flag: flagsMap[homeTeam] || '🏳️',
             team2: awayTeam === 'United States' ? 'USA' : (awayTeam === 'Czech Republic' ? 'Czechia' : awayTeam),
@@ -243,7 +257,7 @@ async function syncFromWorldCupAPI() {
             group: game.group,
             type: game.type
           };
-          
+
           db.matches.push(newMatch);
           updated = true;
           console.log(`[API Sync] Imported new match: ${newMatch.team1} vs ${newMatch.team2} (${newKickoff})`);
@@ -296,7 +310,15 @@ app.get('/api/matches', (req, res) => {
   const userId = req.headers['x-user-id'];
   const db = readDB();
 
-  const matchesWithPredictions = db.matches.map(match => {
+  // Deduplicate matches by id
+  const seenMatchIds = new Set();
+  const uniqueDbMatches = db.matches.filter(m => {
+    if (seenMatchIds.has(m.id)) return false;
+    seenMatchIds.add(m.id);
+    return true;
+  });
+
+  const matchesWithPredictions = uniqueDbMatches.map(match => {
     const locked = isMatchLocked(match);
     
     // Find current user's prediction
@@ -396,9 +418,14 @@ app.post('/api/predict', (req, res) => {
 app.get('/api/leaderboard', (req, res) => {
   const db = readDB();
   const leaderboard = calculateLeaderboard(db);
-  
-  // Provide full prediction grid data for real-time comparison (all matches)
-  const allMatches = db.matches;
+
+  // Deduplicate matches by id (sync bugs can create repeated entries)
+  const seenIds = new Set();
+  const allMatches = db.matches.filter(m => {
+    if (seenIds.has(m.id)) return false;
+    seenIds.add(m.id);
+    return true;
+  });
   
   // Create a grid of predictions: { [userId]: { [matchId]: prediction } }
   const predictionGrid = {};
@@ -418,9 +445,18 @@ app.get('/api/leaderboard', (req, res) => {
     });
   });
 
+  // Only expose matches that are relevant for the matrix:
+  // locked/live/finished OR has at least one prediction from any player
+  const playerIds = new Set(db.users.filter(u => u.role !== 'admin').map(u => u.id));
+  const matchIdsWithPreds = new Set(db.predictions.filter(p => playerIds.has(p.userId)).map(p => p.matchId));
+
+  const matrixMatches = allMatches.filter(m =>
+    isMatchLocked(m) || m.status === 'finished' || m.status === 'live' || matchIdsWithPreds.has(m.id)
+  );
+
   res.json({
     leaderboard,
-    matches: allMatches.map(m => ({
+    matches: matrixMatches.map(m => ({
       id: m.id,
       team1: m.team1,
       team1_flag: m.team1_flag,
