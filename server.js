@@ -28,6 +28,13 @@ if (process.env.DB_PATH) {
 
 app.use(cors());
 app.use(express.json());
+// Prevent browsers from caching app.js/style.css across deploys
+app.use((req, res, next) => {
+  if (req.path.endsWith('.js') || req.path.endsWith('.css')) {
+    res.set('Cache-Control', 'no-cache');
+  }
+  next();
+});
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Helper to read database
