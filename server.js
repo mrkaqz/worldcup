@@ -363,8 +363,8 @@ app.get('/api/matches', (req, res) => {
 
     // Get all predictions for this match:
     // - locked/finished: show everyone's choice (draw as default)
-    // - unlocked + admin: show actual choices made so far
-    // - unlocked + non-admin: hide all (empty)
+    // - unlocked + admin: show actual choices
+    // - unlocked + non-admin: show who bet, but mask choice as null
     let allPredictions = [];
     if (locked || match.status === 'finished') {
       allPredictions = db.users
@@ -377,7 +377,7 @@ app.get('/api/matches', (req, res) => {
             prediction: pred ? pred.prediction : 'draw'
           };
         });
-    } else if (isAdmin) {
+    } else {
       allPredictions = db.predictions
         .filter(p => p.matchId === match.id && p.prediction)
         .map(p => {
@@ -385,7 +385,7 @@ app.get('/api/matches', (req, res) => {
           return {
             userId: p.userId,
             userName: u ? u.name : 'Unknown',
-            prediction: p.prediction
+            prediction: isAdmin ? p.prediction : null  // mask choice for non-admin
           };
         });
     }
@@ -466,33 +466,32 @@ app.get('/api/leaderboard', (req, res) => {
   });
 
   // Create a grid of predictions: { [userId]: { [matchId]: prediction } }
-  // For unlocked matches, only admin sees actual choices — others see nothing
+  // - locked/live/finished: show actual choice
+  // - unlocked + admin: show actual choice
+  // - unlocked + non-admin: 'hidden' if bet exists, undefined if no bet
   const predictionGrid = {};
   db.users.filter(u => u.role !== 'admin').forEach(u => {
     predictionGrid[u.id] = {};
     allMatches.forEach(m => {
       const locked = isMatchLocked(m);
+      const pred = db.predictions.find(p => p.userId === u.id && p.matchId === m.id);
       if (locked || m.status === 'finished' || m.status === 'live') {
-        const pred = db.predictions.find(p => p.userId === u.id && p.matchId === m.id);
         predictionGrid[u.id][m.id] = pred ? pred.prediction : 'draw';
-      } else if (isAdmin) {
-        const pred = db.predictions.find(p => p.userId === u.id && p.matchId === m.id);
-        if (pred) predictionGrid[u.id][m.id] = pred.prediction;
+      } else if (pred) {
+        predictionGrid[u.id][m.id] = isAdmin ? pred.prediction : 'hidden';
       }
     });
   });
 
-  // Only expose matches that are relevant for the matrix:
-  // - locked/live/finished: always visible
-  // - unlocked with predictions: only visible to admin
+  // Expose matches in the matrix:
+  // - locked/live/finished: always
+  // - unlocked with at least one non-admin prediction: always (choice is masked for non-admin)
   const playerIds = new Set(db.users.filter(u => u.role !== 'admin').map(u => u.id));
   const matchIdsWithPreds = new Set(db.predictions.filter(p => playerIds.has(p.userId)).map(p => p.matchId));
 
-  const matrixMatches = allMatches.filter(m => {
-    if (isMatchLocked(m) || m.status === 'finished' || m.status === 'live') return true;
-    if (isAdmin && matchIdsWithPreds.has(m.id)) return true;
-    return false;
-  });
+  const matrixMatches = allMatches.filter(m =>
+    isMatchLocked(m) || m.status === 'finished' || m.status === 'live' || matchIdsWithPreds.has(m.id)
+  );
 
   res.json({
     leaderboard,

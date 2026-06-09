@@ -545,7 +545,7 @@ function renderMatches() {
     let otherPredictionsAccordion = '';
     if (match.allPredictions && match.allPredictions.length > 0) {
       const predItems = match.allPredictions.map(p => {
-        let choiceBadge = '';
+        let choiceBadge = `<span class="pred-choice pred-hidden">***</span>`;
         if (p.prediction === 'team1') choiceBadge = `<span class="pred-choice team1">${getFlagHtmlSmall(match.team1, match.team1_flag)} ชนะ</span>`;
         else if (p.prediction === 'draw') choiceBadge = `<span class="pred-choice draw">เสมอ</span>`;
         else if (p.prediction === 'team2') choiceBadge = `<span class="pred-choice team2">${getFlagHtmlSmall(match.team2, match.team2_flag)} ชนะ</span>`;
@@ -861,25 +861,24 @@ function renderLeaderboard() {
       let displayVal = '-';
       let cellClass = '';
 
-      if (pred) {
+      if (pred === 'hidden') {
+        displayVal = '***';
+        cellClass = 'pred-hidden';
+      } else if (pred) {
         if (pred === 'team1') {
-          displayVal = match.team1.substring(0, 3).toUpperCase(); // e.g. MEX
+          displayVal = match.team1.substring(0, 3).toUpperCase();
           cellClass = 'pred-team1';
         } else if (pred === 'draw') {
-          displayVal = 'Draw'; // Draw
+          displayVal = 'Draw';
           cellClass = 'pred-draw';
         } else if (pred === 'team2') {
-          displayVal = match.team2.substring(0, 3).toUpperCase(); // e.g. AUS
+          displayVal = match.team2.substring(0, 3).toUpperCase();
           cellClass = 'pred-team2';
         }
 
         // Apply green/red coloring if the match has concluded
         if (match.status === 'finished' && match.winner) {
-          if (pred === match.winner) {
-            cellClass = 'pred-correct';
-          } else {
-            cellClass = 'pred-wrong';
-          }
+          cellClass = pred === match.winner ? 'pred-correct' : 'pred-wrong';
         }
       }
 

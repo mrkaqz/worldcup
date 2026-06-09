@@ -701,6 +701,7 @@ main {
 .pred-summary-item .pred-choice.team1 { color: #4facfe; }
 .pred-summary-item .pred-choice.draw { color: #a1c4fd; }
 .pred-summary-item .pred-choice.team2 { color: #fda085; }
+.pred-summary-item .pred-choice.pred-hidden { color: var(--text-muted); letter-spacing: 2px; }
 
 /* ==========================================================================
    LEADERBOARD & TABLES
@@ -893,6 +894,7 @@ tbody tr:hover {
 .matrix-cell.pred-team1 { background: rgba(79, 172, 254, 0.15); color: #4facfe; }
 .matrix-cell.pred-draw { background: rgba(161, 196, 253, 0.15); color: #a1c4fd; }
 .matrix-cell.pred-team2 { background: rgba(253, 160, 133, 0.15); color: #fda085; }
+.matrix-cell.pred-hidden { color: var(--text-muted); letter-spacing: 2px; }
 
 .matrix-cell.pred-correct {
   background: var(--color-success) !important;
