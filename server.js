@@ -478,8 +478,9 @@ app.get('/api/leaderboard', (req, res) => {
   });
 
   // Only expose matches that are relevant for the matrix:
-  // locked/live/finished OR has at least one prediction from any user (including admin)
-  const matchIdsWithPreds = new Set(db.predictions.map(p => p.matchId));
+  // locked/live/finished OR has at least one prediction from any player (non-admin)
+  const playerIds = new Set(db.users.filter(u => u.role !== 'admin').map(u => u.id));
+  const matchIdsWithPreds = new Set(db.predictions.filter(p => playerIds.has(p.userId)).map(p => p.matchId));
 
   const matrixMatches = allMatches.filter(m =>
     isMatchLocked(m) || m.status === 'finished' || m.status === 'live' || matchIdsWithPreds.has(m.id)
