@@ -769,7 +769,9 @@ async function loadLeaderboard(silent = false) {
   }
 
   try {
-    const response = await fetch(`${API_URL}/api/leaderboard`);
+    const headers = {};
+    if (currentUser) headers['X-User-Id'] = currentUser.id;
+    const response = await fetch(`${API_URL}/api/leaderboard`, { headers });
     if (!response.ok) throw new Error('Failed to fetch leaderboard');
     
     const newLeaderboard = await response.json();

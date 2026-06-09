@@ -341,6 +341,7 @@ app.get('/api/version', (req, res) => {
 app.get('/api/matches', (req, res) => {
   const userId = req.headers['x-user-id'];
   const db = readDB();
+  const isAdmin = userId && db.users.find(u => u.id === userId && u.role === 'admin');
 
   // Deduplicate matches by id
   const seenMatchIds = new Set();
@@ -352,7 +353,7 @@ app.get('/api/matches', (req, res) => {
 
   const matchesWithPredictions = uniqueDbMatches.map(match => {
     const locked = isMatchLocked(match);
-    
+
     // Find current user's prediction
     let userPrediction = null;
     if (userId) {
@@ -360,7 +361,10 @@ app.get('/api/matches', (req, res) => {
       userPrediction = pred ? pred.prediction : (locked ? 'draw' : null);
     }
 
-    // Get all predictions for this match (default to draw when locked)
+    // Get all predictions for this match:
+    // - locked/finished: show everyone's choice (draw as default)
+    // - unlocked + admin: show actual choices made so far
+    // - unlocked + non-admin: hide all (empty)
     let allPredictions = [];
     if (locked || match.status === 'finished') {
       allPredictions = db.users
@@ -373,7 +377,7 @@ app.get('/api/matches', (req, res) => {
             prediction: pred ? pred.prediction : 'draw'
           };
         });
-    } else {
+    } else if (isAdmin) {
       allPredictions = db.predictions
         .filter(p => p.matchId === match.id && p.prediction)
         .map(p => {
@@ -448,7 +452,9 @@ app.post('/api/predict', (req, res) => {
 
 // Get leaderboard
 app.get('/api/leaderboard', (req, res) => {
+  const userId = req.headers['x-user-id'];
   const db = readDB();
+  const isAdmin = userId && db.users.find(u => u.id === userId && u.role === 'admin');
   const leaderboard = calculateLeaderboard(db);
 
   // Deduplicate matches by id (sync bugs can create repeated entries)
@@ -458,33 +464,35 @@ app.get('/api/leaderboard', (req, res) => {
     seenIds.add(m.id);
     return true;
   });
-  
+
   // Create a grid of predictions: { [userId]: { [matchId]: prediction } }
+  // For unlocked matches, only admin sees actual choices — others see nothing
   const predictionGrid = {};
   db.users.filter(u => u.role !== 'admin').forEach(u => {
     predictionGrid[u.id] = {};
     allMatches.forEach(m => {
       const locked = isMatchLocked(m);
-      if (locked || m.status === 'finished') {
+      if (locked || m.status === 'finished' || m.status === 'live') {
         const pred = db.predictions.find(p => p.userId === u.id && p.matchId === m.id);
         predictionGrid[u.id][m.id] = pred ? pred.prediction : 'draw';
-      } else {
+      } else if (isAdmin) {
         const pred = db.predictions.find(p => p.userId === u.id && p.matchId === m.id);
-        if (pred) {
-          predictionGrid[u.id][m.id] = pred.prediction;
-        }
+        if (pred) predictionGrid[u.id][m.id] = pred.prediction;
       }
     });
   });
 
   // Only expose matches that are relevant for the matrix:
-  // locked/live/finished OR has at least one prediction from any player (non-admin)
+  // - locked/live/finished: always visible
+  // - unlocked with predictions: only visible to admin
   const playerIds = new Set(db.users.filter(u => u.role !== 'admin').map(u => u.id));
   const matchIdsWithPreds = new Set(db.predictions.filter(p => playerIds.has(p.userId)).map(p => p.matchId));
 
-  const matrixMatches = allMatches.filter(m =>
-    isMatchLocked(m) || m.status === 'finished' || m.status === 'live' || matchIdsWithPreds.has(m.id)
-  );
+  const matrixMatches = allMatches.filter(m => {
+    if (isMatchLocked(m) || m.status === 'finished' || m.status === 'live') return true;
+    if (isAdmin && matchIdsWithPreds.has(m.id)) return true;
+    return false;
+  });
 
   res.json({
     leaderboard,
