@@ -242,6 +242,27 @@ header {
   color: var(--color-danger);
 }
 
+.btn-lang-toggle {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0.3rem 0.65rem;
+  border-radius: 20px;
+  font-family: var(--font-primary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.btn-lang-toggle:hover {
+  background: rgba(0, 242, 254, 0.12);
+  border-color: rgba(0, 242, 254, 0.4);
+  color: #00f2fe;
+}
+
 /* ==========================================================================
    NAVIGATION
    ========================================================================== */
