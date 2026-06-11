@@ -118,7 +118,8 @@ function startTimers() {
     const timeDisplay = document.getElementById('server-time-display');
     if (timeDisplay) {
       const now = new Date();
-      timeDisplay.textContent = now.toLocaleTimeString('th-TH', { hour12: false }) + ' (UTC+7)';
+      const lang = window.getCurrentLang ? window.getCurrentLang() : 'th';
+      timeDisplay.textContent = now.toLocaleTimeString(lang === 'th' ? 'th-TH' : 'en-US', { hour12: false }) + ' (UTC+7)';
     }
   }, 1000);
 
@@ -494,10 +495,11 @@ function renderMatches() {
   // Create match cards
   const cardsHtml = filteredMatches.map(match => {
     const kickoffDate = new Date(match.kickoff);
-    const kickoffStr = kickoffDate.toLocaleString('th-TH', {
+    const lang = window.getCurrentLang ? window.getCurrentLang() : 'th';
+    const kickoffStr = kickoffDate.toLocaleString(lang === 'th' ? 'th-TH' : 'en-US', {
       day: 'numeric', month: 'short', year: 'numeric',
       hour: '2-digit', minute: '2-digit'
-    }) + ' น.';
+    }) + (lang === 'th' ? ' น.' : '');
 
     // Classes for cards based on state
     let cardStateClass = 'open-card';
@@ -1018,9 +1020,10 @@ async function loadAdminMatches() {
     }
 
     body.innerHTML = matches.map(match => {
-      const date = new Date(match.kickoff).toLocaleString('th-TH', {
+      const lang = window.getCurrentLang ? window.getCurrentLang() : 'th';
+      const date = new Date(match.kickoff).toLocaleString(lang === 'th' ? 'th-TH' : 'en-US', {
         day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
-      }) + ' น.';
+      }) + (lang === 'th' ? ' น.' : '');
 
       // Form for entry score
       let scoreHtml = '';
