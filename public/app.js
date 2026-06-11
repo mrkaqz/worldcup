@@ -13,7 +13,7 @@ let refreshInterval = null;
 
 // Country flag mapping (translates team name to FlagCDN ISO 2-letter codes)
 const countryCodes = {
-  'brazil': 'br', 'croatia': 'hr', 'france': 'fr', 'argentina': 'ar', 'mexico': 'mx', 
+  'brazil': 'br', 'croatia': 'hr', 'france': 'fr', 'argentina': 'ar', 'mexico': 'mx',
   'south africa': 'za', 'south korea': 'kr', 'czechia': 'cz', 'czech republic': 'cz',
   'canada': 'ca', 'bosnia and herzegovina': 'ba', 'bosnia': 'ba', 'usa': 'us', 'united states': 'us',
   'paraguay': 'py', 'haiti': 'ht', 'scotland': 'gb-sct', 'australia': 'au', 'turkey': 'tr',
@@ -48,28 +48,28 @@ function getFlagHtmlSmall(teamName, defaultFlag) {
 
 function getGroupRoundLabel(group, type) {
   if (!group && !type) return '';
-  const t = type ? type.toLowerCase() : '';
+  const tp = type ? type.toLowerCase() : '';
   const g = group ? group.toUpperCase() : '';
-  
-  if (t === 'group') {
-    return g ? `กลุ่ม ${g}` : 'รอบแบ่งกลุ่ม';
+
+  if (tp === 'group') {
+    return g ? `${window.t('round_group_prefix')} ${g}` : window.t('round_group_stage');
   }
-  
-  switch(t) {
-    case 'r32': return 'รอบ 32 ทีม';
-    case 'r16': return 'รอบ 16 ทีม';
-    case 'qf': return 'รอบ 8 ทีม';
-    case 'sf': return 'รอบรองฯ';
-    case 'third': return 'ชิงอันดับ 3';
-    case 'final': return 'ชิงชนะเลิศ';
+
+  switch (tp) {
+    case 'r32': return window.t('round_32');
+    case 'r16': return window.t('round_16');
+    case 'qf':  return window.t('round_qf');
+    case 'sf':  return window.t('round_sf');
+    case 'third': return window.t('round_third');
+    case 'final': return window.t('round_final');
     default:
-      if (g === 'R32') return 'รอบ 32 ทีม';
-      if (g === 'R16') return 'รอบ 16 ทีม';
-      if (g === 'QF') return 'รอบ 8 ทีม';
-      if (g === 'SF') return 'รอบรองฯ';
-      if (g === '3RD') return 'ชิงอันดับ 3';
-      if (g === 'FINAL') return 'ชิงชนะเลิศ';
-      return g || t.toUpperCase();
+      if (g === 'R32')   return window.t('round_32');
+      if (g === 'R16')   return window.t('round_16');
+      if (g === 'QF')    return window.t('round_qf');
+      if (g === 'SF')    return window.t('round_sf');
+      if (g === '3RD')   return window.t('round_third');
+      if (g === 'FINAL') return window.t('round_final');
+      return g || tp.toUpperCase();
   }
 }
 
@@ -162,7 +162,7 @@ function setupEventListeners() {
   document.getElementById('login-trigger-btn').addEventListener('click', () => {
     showLoginModal(true);
   });
-  
+
   document.getElementById('close-login-btn').addEventListener('click', () => {
     showLoginModal(false);
   });
@@ -181,15 +181,15 @@ function setupEventListeners() {
   const addMatchForm = document.getElementById('add-match-form');
   addMatchTrigger.addEventListener('click', () => {
     addMatchForm.classList.toggle('hidden');
-    addMatchTrigger.innerHTML = addMatchForm.classList.contains('hidden') 
-      ? '<i class="fa-solid fa-plus"></i> เพิ่มคู่แข่ง' 
-      : '<i class="fa-solid fa-minus"></i> ซ่อนฟอร์ม';
+    addMatchTrigger.innerHTML = addMatchForm.classList.contains('hidden')
+      ? `<i class="fa-solid fa-plus"></i> ${window.t('admin_add_match_btn')}`
+      : `<i class="fa-solid fa-minus"></i> ${window.t('admin_hide_form_btn')}`;
   });
 
   // Admin: Cancel Add Match
   document.getElementById('cancel-match-btn').addEventListener('click', () => {
     addMatchForm.classList.add('hidden');
-    addMatchTrigger.innerHTML = '<i class="fa-solid fa-plus"></i> เพิ่มคู่แข่ง';
+    addMatchTrigger.innerHTML = `<i class="fa-solid fa-plus"></i> ${window.t('admin_add_match_btn')}`;
   });
 
   // Admin: Add Match Form Submission
@@ -197,7 +197,7 @@ function setupEventListeners() {
 
   // Admin: Reset Database
   document.getElementById('reset-db-btn').addEventListener('click', async () => {
-    const confirmReset = confirm('⚠️ คำเตือน: คุณต้องการล้างข้อมูลผู้เล่น คะแนน และผลการทายทั้งหมดในระบบใช่หรือไม่? (บัญชีผู้ดูแลระบบ (Admin) จะไม่ถูกลบ)');
+    const confirmReset = confirm(window.t('confirm_reset'));
     if (!confirmReset) return;
 
     try {
@@ -210,18 +210,18 @@ function setupEventListeners() {
 
       const data = await response.json();
       if (data.success) {
-        showToast(data.message || 'รีเซ็ตระบบและดึงข้อมูลแข่งขันจริงสำเร็จ!', 'success');
+        showToast(data.message || window.t('toast_reset_success'), 'success');
         // Refresh all local data
         loadAdminData();
         loadMatches(true);
         loadLeaderboard(true);
         switchTab('predict-tab');
       } else {
-        showToast(data.message || 'ไม่สามารถรีเซ็ตระบบได้', 'error');
+        showToast(data.message || window.t('toast_reset_fail'), 'error');
       }
     } catch (err) {
       console.error(err);
-      showToast('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์', 'error');
+      showToast(window.t('toast_server_error'), 'error');
     }
   });
 
@@ -234,7 +234,7 @@ function setupEventListeners() {
 
 function switchTab(tabId) {
   activeTab = tabId;
-  
+
   // Update nav links styling
   const tabs = document.querySelectorAll('.tab-link');
   tabs.forEach(tab => {
@@ -266,9 +266,9 @@ function switchTab(tabId) {
 
   // Track tab switch as virtual pageview in Google Analytics
   const tabTitles = {
-    'predict-tab': 'รายการแข่งขัน & ทายผล',
-    'leaderboard-tab': 'ตารางคะแนนผู้เล่น',
-    'admin-tab': 'แอดมิน'
+    'predict-tab': window.t('ga_predict'),
+    'leaderboard-tab': window.t('ga_leaderboard'),
+    'admin-tab': window.t('ga_admin')
   };
   if (typeof gtag === 'function') {
     gtag('event', 'page_view', {
@@ -286,18 +286,18 @@ function showToast(message, type = 'info') {
   const container = document.getElementById('toast-container');
   const toast = document.createElement('div');
   toast.className = `toast ${type}`;
-  
+
   let icon = 'fa-circle-info';
   if (type === 'success') icon = 'fa-circle-check';
   if (type === 'error') icon = 'fa-circle-exclamation';
-  
+
   toast.innerHTML = `
     <i class="fa-solid ${icon}"></i>
     <span>${message}</span>
   `;
-  
+
   container.appendChild(toast);
-  
+
   // Auto remove after 4 seconds
   setTimeout(() => {
     toast.style.animation = 'fadeIn 0.3s reverse forwards';
@@ -323,7 +323,7 @@ async function handleLogin(e) {
   e.preventDefault();
   const username = document.getElementById('login-username').value.trim();
   const pin = document.getElementById('login-pin').value;
-  
+
   const submitBtn = e.target.querySelector('button[type="submit"]');
   const btnText = submitBtn.querySelector('.btn-text');
   const btnSpinner = submitBtn.querySelector('.btn-spinner');
@@ -341,27 +341,27 @@ async function handleLogin(e) {
     });
 
     const data = await response.json();
-    
+
     if (data.success) {
       currentUser = data.user;
       localStorage.setItem('worldcup_user', JSON.stringify(currentUser));
       updateUserUI();
       showLoginModal(false);
-      showToast(`ยินดีต้อนรับคุณ ${currentUser.name}!`, 'success');
-      
+      showToast(window.t('toast_welcome', { name: currentUser.name }), 'success');
+
       // Reload matching dataset
       loadMatches();
       loadLeaderboard();
-      
+
       if (currentUser.role === 'admin') {
         switchTab('admin-tab');
       }
     } else {
-      showToast(data.message || 'เข้าสู่ระบบล้มเหลว', 'error');
+      showToast(data.message || window.t('toast_login_fail'), 'error');
     }
   } catch (err) {
     console.error(err);
-    showToast('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์', 'error');
+    showToast(window.t('toast_server_error'), 'error');
   } finally {
     btnText.classList.remove('hidden');
     btnSpinner.classList.add('hidden');
@@ -373,7 +373,7 @@ function handleLogout() {
   currentUser = null;
   localStorage.removeItem('worldcup_user');
   updateUserUI();
-  showToast('ออกจากระบบเรียบร้อยแล้ว', 'info');
+  showToast(window.t('toast_logout'), 'info');
   switchTab('predict-tab');
   loadMatches();
   loadLeaderboard();
@@ -388,7 +388,7 @@ function updateUserUI() {
 
   if (currentUser) {
     displayName.textContent = currentUser.name;
-    userRole.textContent = currentUser.role === 'admin' ? 'ผู้ดูแลระบบ (Admin)' : 'ผู้เล่น (Player)';
+    userRole.textContent = currentUser.role === 'admin' ? window.t('role_admin') : window.t('role_player');
     userStatus.classList.remove('hidden');
     loginTriggerBtn.classList.add('hidden');
 
@@ -412,7 +412,7 @@ async function loadMatches(silent = false) {
   if (!silent && matchesData.length === 0) {
     grid.innerHTML = `
       <div class="loading-spinner">
-        <i class="fa-solid fa-circle-notch fa-spin"></i> กำลังโหลดตารางแข่งแข่งขัน...
+        <i class="fa-solid fa-circle-notch fa-spin"></i> ${window.t('loading_matches')}
       </div>
     `;
   }
@@ -425,10 +425,11 @@ async function loadMatches(silent = false) {
   try {
     const response = await fetch(`${API_URL}/api/matches`, { headers });
     if (!response.ok) throw new Error('Failed to fetch matches');
-    
+
     const newData = await response.json();
     const hasChanged = JSON.stringify(newData) !== JSON.stringify(matchesData);
     matchesData = newData;
+    window.matchesData = matchesData;
     updateFilterCounts();
     if (!silent || hasChanged) {
       renderMatches();
@@ -439,7 +440,7 @@ async function loadMatches(silent = false) {
       grid.innerHTML = `
         <div class="empty-state">
           <i class="fa-solid fa-triangle-exclamation text-danger"></i>
-          <p>ไม่สามารถดึงข้อมูลตารางแข่งขันได้ในขณะนี้</p>
+          <p>${window.t('error_load_matches')}</p>
         </div>
       `;
     }
@@ -484,7 +485,7 @@ function renderMatches() {
     grid.innerHTML = `
       <div class="empty-state animate-fade-in">
         <i class="fa-regular fa-calendar-times"></i>
-        <p>ไม่มีรายการแข่งขันในหมวดหมู่ที่เลือก</p>
+        <p>${window.t('no_matches_in_filter')}</p>
       </div>
     `;
     return;
@@ -532,11 +533,11 @@ function renderMatches() {
     // Countdown Badge HTML
     let countdownBadgeHtml = '';
     if (match.status === 'finished') {
-      countdownBadgeHtml = `<span class="countdown locked"><i class="fa-solid fa-circle"></i> จบการแข่งขัน</span>`;
+      countdownBadgeHtml = `<span class="countdown locked"><i class="fa-solid fa-circle"></i> ${window.t('finished_label')}</span>`;
     } else {
       countdownBadgeHtml = `
         <span class="countdown kickoff-countdown" data-kickoff="${match.kickoff}" data-locked="${match.locked}">
-          <i class="fa-regular fa-clock"></i> โหลดเวลา...
+          <i class="fa-regular fa-clock"></i> ${window.t('loading_time')}
         </span>
       `;
     }
@@ -546,9 +547,9 @@ function renderMatches() {
     if (match.allPredictions && match.allPredictions.length > 0) {
       const predItems = match.allPredictions.map(p => {
         let choiceBadge = `<span class="pred-choice pred-hidden">***</span>`;
-        if (p.prediction === 'team1') choiceBadge = `<span class="pred-choice team1">${getFlagHtmlSmall(match.team1, match.team1_flag)} ชนะ</span>`;
-        else if (p.prediction === 'draw') choiceBadge = `<span class="pred-choice draw">เสมอ</span>`;
-        else if (p.prediction === 'team2') choiceBadge = `<span class="pred-choice team2">${getFlagHtmlSmall(match.team2, match.team2_flag)} ชนะ</span>`;
+        if (p.prediction === 'team1') choiceBadge = `<span class="pred-choice team1">${getFlagHtmlSmall(match.team1, match.team1_flag)} ${window.t('wins')}</span>`;
+        else if (p.prediction === 'draw') choiceBadge = `<span class="pred-choice draw">${window.t('draw')}</span>`;
+        else if (p.prediction === 'team2') choiceBadge = `<span class="pred-choice team2">${getFlagHtmlSmall(match.team2, match.team2_flag)} ${window.t('wins')}</span>`;
         return `
           <div class="pred-summary-item">
             <span>${p.userName}</span>
@@ -560,7 +561,7 @@ function renderMatches() {
       otherPredictionsAccordion = `
         <div class="all-predictions-accordion">
           <button class="accordion-trigger" onclick="toggleAccordion(this)">
-            <span><i class="fa-solid fa-users"></i> ดูคำทายของผู้เล่นทั้งหมด (${match.allPredictions.length})</span>
+            <span><i class="fa-solid fa-users"></i> ${window.t('view_all_predictions')} (${match.allPredictions.length})</span>
             <i class="fa-solid fa-chevron-down"></i>
           </button>
           <div class="predictions-summary-list hidden animate-fade-in">
@@ -573,11 +574,11 @@ function renderMatches() {
     // Custom text warning if user is not logged in
     let loginPrompt = '';
     if (!currentUser && !match.locked && match.status !== 'finished') {
-      loginPrompt = `<p class="text-center text-muted" style="font-size:0.75rem; margin-top:0.5rem;"><i class="fa-solid fa-circle-exclamation"></i> กรุณาเข้าสู่ระบบเพื่อทำการทายผล</p>`;
+      loginPrompt = `<p class="text-center text-muted" style="font-size:0.75rem; margin-top:0.5rem;"><i class="fa-solid fa-circle-exclamation"></i> ${window.t('login_to_predict')}</p>`;
     }
 
     // Score display if finished/live
-    const vsOrScoreHtml = match.status === 'finished' 
+    const vsOrScoreHtml = match.status === 'finished'
       ? `<div class="live-score">${match.score1} - ${match.score2}</div>`
       : `<span class="vs-text">VS</span>`;
 
@@ -594,17 +595,17 @@ function renderMatches() {
           </div>
           ${countdownBadgeHtml}
         </div>
-        
+
         <div class="teams-container">
           <div class="team">
             ${getFlagHtml(match.team1, match.team1_flag)}
             <span class="team-name">${match.team1}</span>
           </div>
-          
+
           <div class="vs-block">
             ${vsOrScoreHtml}
           </div>
-          
+
           <div class="team">
             ${getFlagHtml(match.team2, match.team2_flag)}
             <span class="team-name">${match.team2}</span>
@@ -613,20 +614,20 @@ function renderMatches() {
 
         <div class="predict-actions">
           <div class="predict-buttons">
-            <button class="predict-btn ${isT1Selected} ${t1ResultClass} team1-win" 
-                    ${isButtonsDisabled} 
+            <button class="predict-btn ${isT1Selected} ${t1ResultClass} team1-win"
+                    ${isButtonsDisabled}
                     onclick="submitPrediction('${match.id}', 'team1')">
-              ${match.team1} ชนะ
+              ${match.team1} ${window.t('wins')}
             </button>
-            <button class="predict-btn ${isDrSelected} ${drResultClass} draw-win" 
-                    ${isButtonsDisabled} 
+            <button class="predict-btn ${isDrSelected} ${drResultClass} draw-win"
+                    ${isButtonsDisabled}
                     onclick="submitPrediction('${match.id}', 'draw')">
-              เสมอ
+              ${window.t('draw')}
             </button>
-            <button class="predict-btn ${isT2Selected} ${t2ResultClass} team2-win" 
-                    ${isButtonsDisabled} 
+            <button class="predict-btn ${isT2Selected} ${t2ResultClass} team2-win"
+                    ${isButtonsDisabled}
                     onclick="submitPrediction('${match.id}', 'team2')">
-              ${match.team2} ชนะ
+              ${match.team2} ${window.t('wins')}
             </button>
           </div>
           ${loginPrompt}
@@ -655,9 +656,9 @@ function renderMatches() {
 window.toggleAccordion = function(button) {
   const list = button.nextElementSibling;
   const icon = button.querySelector('.fa-chevron-down') || button.querySelector('.fa-chevron-up');
-  
+
   list.classList.toggle('hidden');
-  
+
   if (list.classList.contains('hidden')) {
     icon.className = 'fa-solid fa-chevron-down';
   } else {
@@ -667,7 +668,7 @@ window.toggleAccordion = function(button) {
 
 async function submitPrediction(matchId, prediction) {
   if (!currentUser) {
-    showToast('กรุณาเข้าสู่ระบบก่อนทำการทายผล', 'error');
+    showToast(window.t('toast_login_required'), 'error');
     showLoginModal(true);
     return;
   }
@@ -695,16 +696,16 @@ async function submitPrediction(matchId, prediction) {
         match.userPrediction = newPrediction;
         renderMatches();
       }
-      showToast(newPrediction ? `ทายผลสำเร็จ!` : 'ยกเลิกการทายผลสำเร็จ', 'success');
-      
+      showToast(newPrediction ? window.t('toast_predict_success') : window.t('toast_predict_cancel'), 'success');
+
       // Update leaderboard data in background
       loadLeaderboard(true);
     } else {
-      showToast(data.message || 'ไม่สามารถบันทึกผลการทายได้', 'error');
+      showToast(data.message || window.t('toast_predict_fail'), 'error');
     }
   } catch (err) {
     console.error(err);
-    showToast('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์', 'error');
+    showToast(window.t('toast_server_error'), 'error');
   }
 }
 
@@ -716,7 +717,7 @@ function updateCountdowns() {
     const kickoffTime = new Date(el.dataset.kickoff).getTime();
     const isLockedState = el.dataset.locked === 'true';
     const lockTime = kickoffTime - 15 * 60 * 1000;
-    
+
     // Time left until predictions lock (15 minutes before kickoff)
     const timeLeft = lockTime - now;
 
@@ -729,27 +730,27 @@ function updateCountdowns() {
 
       let timeText = '';
       if (days > 0) {
-        timeText = `${days}วัน ${hours}ชม.`;
+        timeText = `${days}${window.t('days')} ${hours}${window.t('hours')}`;
       } else if (hours > 0) {
-        timeText = `${hours}ชม. ${minutes}นาที`;
+        timeText = `${hours}${window.t('hours')} ${minutes}${window.t('minutes')}`;
       } else {
-        timeText = `${minutes}นาที ${seconds}วิ`;
+        timeText = `${minutes}${window.t('minutes')} ${seconds}${window.t('seconds')}`;
       }
 
-      el.innerHTML = `<i class="fa-regular fa-clock text-success"></i> ปิดทายใน: ${timeText}`;
+      el.innerHTML = `<i class="fa-regular fa-clock text-success"></i> ${window.t('closes_in')} ${timeText}`;
       el.className = 'countdown open';
     } else {
       // Predictions locked
       const timeLeftToKickoff = kickoffTime - now;
       if (timeLeftToKickoff > 0) {
-        el.innerHTML = `<i class="fa-solid fa-lock text-warning"></i> ปิดทายผลแล้ว (รอเริ่มแข่ง)`;
+        el.innerHTML = `<i class="fa-solid fa-lock text-warning"></i> ${window.t('locked_waiting')}`;
         el.className = 'countdown locked';
       } else {
         // Kickoff started
-        el.innerHTML = `<i class="fa-solid fa-futbol text-danger live"></i> กำลังแข่งขัน`;
+        el.innerHTML = `<i class="fa-solid fa-futbol text-danger live"></i> ${window.t('live_label')}`;
         el.className = 'countdown live';
       }
-      
+
       // If client state is not yet marked as locked, trigger a reload to fetch other users' predictions
       if (!isLockedState) {
         el.dataset.locked = 'true';
@@ -765,7 +766,7 @@ function updateCountdowns() {
 async function loadLeaderboard(silent = false) {
   const body = document.getElementById('leaderboard-body');
   if (!silent && !leaderboardData) {
-    body.innerHTML = `<tr><td colspan="4" class="text-center"><i class="fa-solid fa-circle-notch fa-spin"></i> กำลังโหลดตารางอันดับ...</td></tr>`;
+    body.innerHTML = `<tr><td colspan="4" class="text-center"><i class="fa-solid fa-circle-notch fa-spin"></i> ${window.t('loading_leaderboard')}</td></tr>`;
   }
 
   try {
@@ -773,17 +774,18 @@ async function loadLeaderboard(silent = false) {
     if (currentUser) headers['X-User-Id'] = currentUser.id;
     const response = await fetch(`${API_URL}/api/leaderboard`, { headers });
     if (!response.ok) throw new Error('Failed to fetch leaderboard');
-    
+
     const newLeaderboard = await response.json();
     const leaderboardChanged = JSON.stringify(newLeaderboard) !== JSON.stringify(leaderboardData);
     leaderboardData = newLeaderboard;
+    window.leaderboardData = leaderboardData;
     if (!silent || leaderboardChanged) {
       renderLeaderboard();
     }
   } catch (err) {
     console.error(err);
     if (!silent) {
-      body.innerHTML = `<tr><td colspan="4" class="text-center text-danger"><i class="fa-solid fa-circle-exclamation"></i> ไม่สามารถดึงข้อมูลตารางอันดับได้</td></tr>`;
+      body.innerHTML = `<tr><td colspan="4" class="text-center text-danger"><i class="fa-solid fa-circle-exclamation"></i> ${window.t('error_load_leaderboard')}</td></tr>`;
     }
   }
 }
@@ -796,7 +798,7 @@ function renderLeaderboard() {
   // Render leaderboard standings table
   const body = document.getElementById('leaderboard-body');
   if (leaderboard.length === 0) {
-    body.innerHTML = `<tr><td colspan="4" class="text-center text-muted">ยังไม่มีรายชื่อผู้ทายผลในระบบ</td></tr>`;
+    body.innerHTML = `<tr><td colspan="4" class="text-center text-muted">${window.t('no_players_leaderboard')}</td></tr>`;
   } else {
     body.innerHTML = leaderboard.map(player => {
       const rank = player.rank;
@@ -826,14 +828,14 @@ function renderLeaderboard() {
 
   // Render comparison matrix header
   const matrixHeaderRow = document.getElementById('matrix-header-row');
-  let headerHtml = `<th class="player-name-col">ผู้เล่น</th>`;
-  
+  let headerHtml = `<th class="player-name-col">${window.t('matrix_player_col')}</th>`;
+
   if (matches.length === 0) {
-    headerHtml += `<th>ไม่มีคู่แข่งขันที่แข่งขันหรือปิดรับผลแล้ว</th>`;
+    headerHtml += `<th>${window.t('no_locked_matches')}</th>`;
     matrixHeaderRow.innerHTML = headerHtml;
-    
+
     const matrixBody = document.getElementById('matrix-body');
-    matrixBody.innerHTML = `<tr><td class="player-name-col">--</td><td class="text-muted">ตารางวิเคราะห์เปรียบเทียบจะเปิดหลังจากมีคู่อย่างน้อย 1 คู่ที่เริ่มการแข่งขัน</td></tr>`;
+    matrixBody.innerHTML = `<tr><td class="player-name-col">--</td><td class="text-muted">${window.t('matrix_empty_msg')}</td></tr>`;
     return;
   }
 
@@ -843,7 +845,7 @@ function renderLeaderboard() {
       <th title="${match.team1} vs ${match.team2}">
         <div class="match-flag-header">
           <span class="flags">${getFlagHtmlSmall(match.team1, match.team1_flag)}${getFlagHtmlSmall(match.team2, match.team2_flag)}</span>
-          <span>${match.team1.substring(0,3)} vs ${match.team2.substring(0,3)}</span>
+          <span>${match.team1.substring(0, 3)} vs ${match.team2.substring(0, 3)}</span>
         </div>
       </th>
     `;
@@ -899,13 +901,13 @@ async function loadAdminData() {
 
 async function loadAdminPlayers() {
   const body = document.getElementById('admin-players-body');
-  body.innerHTML = `<tr><td colspan="4" class="text-center"><i class="fa-solid fa-circle-notch fa-spin"></i> โหลดข้อมูลผู้เล่น...</td></tr>`;
+  body.innerHTML = `<tr><td colspan="4" class="text-center"><i class="fa-solid fa-circle-notch fa-spin"></i> ${window.t('admin_loading_players')}</td></tr>`;
 
   try {
     const response = await fetch(`${API_URL}/api/admin/players`, {
       headers: { 'X-User-Id': currentUser.id }
     });
-    
+
     if (!response.ok) throw new Error('Failed to fetch players');
     const players = await response.json();
 
@@ -913,7 +915,7 @@ async function loadAdminPlayers() {
     document.getElementById('player-count').textContent = players.length;
 
     if (players.length === 0) {
-      body.innerHTML = `<tr><td colspan="4" class="text-center text-muted">ไม่มีผู้เล่นในระบบ (เพิ่มผู้เล่นใหม่ได้จากฟอร์มด้านบน)</td></tr>`;
+      body.innerHTML = `<tr><td colspan="4" class="text-center text-muted">${window.t('admin_no_players')}</td></tr>`;
       return;
     }
 
@@ -928,7 +930,7 @@ async function loadAdminPlayers() {
               <i class="fa-solid fa-key"></i> PIN
             </button>
             <button class="btn-sm-danger" onclick="deletePlayer('${player.id}', '${player.name.replace(/'/g, "\\'")}')">
-              <i class="fa-regular fa-trash-can"></i> ลบ
+              <i class="fa-regular fa-trash-can"></i> ${window.t('admin_btn_delete')}
             </button>
           </td>
         </tr>
@@ -936,7 +938,7 @@ async function loadAdminPlayers() {
     }).join('');
   } catch (err) {
     console.error(err);
-    body.innerHTML = `<tr><td colspan="4" class="text-center text-danger"><i class="fa-solid fa-circle-exclamation"></i> ไม่สามารถดึงข้อมูลได้</td></tr>`;
+    body.innerHTML = `<tr><td colspan="4" class="text-center text-danger"><i class="fa-solid fa-circle-exclamation"></i> ${window.t('admin_error_load')}</td></tr>`;
   }
 }
 
@@ -947,7 +949,7 @@ async function handleAddPlayer(e) {
   const pin = document.getElementById('new-player-pin').value.trim();
 
   if (!pin.match(/^\d{4}$/)) {
-    showToast('PIN ต้องเป็นตัวเลข 4 หลักเท่านั้น', 'error');
+    showToast(window.t('toast_pin_invalid'), 'error');
     return;
   }
 
@@ -963,21 +965,21 @@ async function handleAddPlayer(e) {
 
     const data = await response.json();
     if (data.success) {
-      showToast(`เพิ่มผู้เล่น ${name} สำเร็จ!`, 'success');
+      showToast(window.t('toast_player_added', { name }), 'success');
       document.getElementById('add-player-form').reset();
       loadAdminPlayers();
       loadLeaderboard(true);
     } else {
-      showToast(data.message || 'ไม่สามารถเพิ่มผู้เล่นได้', 'error');
+      showToast(data.message || window.t('toast_player_add_fail'), 'error');
     }
   } catch (err) {
     console.error(err);
-    showToast('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์', 'error');
+    showToast(window.t('toast_server_error'), 'error');
   }
 }
 
 async function deletePlayer(id, name) {
-  if (!confirm(`คุณแน่ใจหรือไม่ที่จะลบผู้เล่น "${name}"?\nการลบจะลบผลทายทั้งหมดของผู้เล่นนี้ด้วยและไม่สามารถกู้คืนได้`)) {
+  if (!confirm(window.t('confirm_delete_player', { name }))) {
     return;
   }
 
@@ -989,21 +991,21 @@ async function deletePlayer(id, name) {
 
     const data = await response.json();
     if (data.success) {
-      showToast(`ลบผู้เล่น ${name} สำเร็จ`, 'success');
+      showToast(window.t('toast_player_deleted', { name }), 'success');
       loadAdminPlayers();
       loadLeaderboard(true);
     } else {
-      showToast(data.message || 'ลบไม่สำเร็จ', 'error');
+      showToast(data.message || window.t('toast_player_delete_fail'), 'error');
     }
   } catch (err) {
     console.error(err);
-    showToast('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์', 'error');
+    showToast(window.t('toast_server_error'), 'error');
   }
 }
 
 async function loadAdminMatches() {
   const body = document.getElementById('admin-matches-body');
-  body.innerHTML = `<tr><td colspan="4" class="text-center"><i class="fa-solid fa-circle-notch fa-spin"></i> โหลดตารางแข่งขัน...</td></tr>`;
+  body.innerHTML = `<tr><td colspan="4" class="text-center"><i class="fa-solid fa-circle-notch fa-spin"></i> ${window.t('admin_loading_matches')}</td></tr>`;
 
   try {
     const response = await fetch(`${API_URL}/api/matches`);
@@ -1011,7 +1013,7 @@ async function loadAdminMatches() {
     const matches = await response.json();
 
     if (matches.length === 0) {
-      body.innerHTML = `<tr><td colspan="4" class="text-center text-muted">ไม่มีข้อมูลตารางแข่งขัน</td></tr>`;
+      body.innerHTML = `<tr><td colspan="4" class="text-center text-muted">${window.t('admin_no_matches')}</td></tr>`;
       return;
     }
 
@@ -1028,7 +1030,7 @@ async function loadAdminMatches() {
         scoreHtml = `<strong style="font-size: 1.1rem; color:#10b981;">${match.score1} - ${match.score2}</strong>`;
         actionHtml = `
           <button class="btn-sm-primary" style="background-color:rgba(245,158,11,0.15); border-color:rgba(245,158,11,0.3); color:#fbbf24;" onclick="resetMatchResult('${match.id}')">
-            <i class="fa-solid fa-rotate-left"></i> ยกเลิก/รีเซ็ต
+            <i class="fa-solid fa-rotate-left"></i> ${window.t('admin_btn_reset_score')}
           </button>
         `;
       } else {
@@ -1041,7 +1043,7 @@ async function loadAdminMatches() {
         `;
         actionHtml = `
           <button class="btn-sm-primary" style="background-color:rgba(16,185,129,0.15); border-color:rgba(16,185,129,0.3); color:#34d399;" onclick="saveMatchResult('${match.id}')">
-            <i class="fa-solid fa-floppy-disk"></i> บันทึกผล
+            <i class="fa-solid fa-floppy-disk"></i> ${window.t('admin_btn_save_score')}
           </button>
         `;
       }
@@ -1054,7 +1056,7 @@ async function loadAdminMatches() {
         <tr class="animate-fade-in">
           <td><small class="text-muted">${date}</small></td>
           <td>
-            <strong>${getFlagHtmlSmall(match.team1, match.team1_flag)} ${match.team1}</strong> vs 
+            <strong>${getFlagHtmlSmall(match.team1, match.team1_flag)} ${match.team1}</strong> vs
             <strong>${getFlagHtmlSmall(match.team2, match.team2_flag)} ${match.team2}</strong>
             ${groupRoundBadgeHtml}
           </td>
@@ -1065,7 +1067,7 @@ async function loadAdminMatches() {
     }).join('');
   } catch (err) {
     console.error(err);
-    body.innerHTML = `<tr><td colspan="4" class="text-center text-danger"><i class="fa-solid fa-circle-exclamation"></i> ไม่สามารถดึงข้อมูลตารางแข่งได้</td></tr>`;
+    body.innerHTML = `<tr><td colspan="4" class="text-center text-danger"><i class="fa-solid fa-circle-exclamation"></i> ${window.t('admin_error_load_matches')}</td></tr>`;
   }
 }
 
@@ -1080,7 +1082,7 @@ async function handleAddMatch(e) {
   const kickoffStr = document.getElementById('match-kickoff').value;
 
   if (!kickoffStr) {
-    showToast('กรุณาระบุเวลาแข่งขัน', 'error');
+    showToast(window.t('toast_kickoff_missing'), 'error');
     return;
   }
 
@@ -1099,19 +1101,19 @@ async function handleAddMatch(e) {
 
     const data = await response.json();
     if (data.success) {
-      showToast(`เพิ่มคู่แข่ง ${team1} vs ${team2} สำเร็จ!`, 'success');
+      showToast(window.t('toast_match_added', { team1, team2 }), 'success');
       document.getElementById('add-match-form').reset();
       document.getElementById('add-match-form').classList.add('hidden');
-      document.getElementById('add-match-trigger-btn').innerHTML = '<i class="fa-solid fa-plus"></i> เพิ่มคู่แข่ง';
-      
+      document.getElementById('add-match-trigger-btn').innerHTML = `<i class="fa-solid fa-plus"></i> ${window.t('admin_add_match_btn')}`;
+
       loadAdminMatches();
       loadMatches(true);
     } else {
-      showToast(data.message || 'ไม่สามารถเพิ่มคู่แข่งขันได้', 'error');
+      showToast(data.message || window.t('toast_match_add_fail'), 'error');
     }
   } catch (err) {
     console.error(err);
-    showToast('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์', 'error');
+    showToast(window.t('toast_server_error'), 'error');
   }
 }
 
@@ -1120,7 +1122,7 @@ async function saveMatchResult(matchId) {
   const score2Input = document.getElementById(`score2-${matchId}`);
 
   if (score1Input.value === '' || score2Input.value === '') {
-    showToast('กรุณากรอกสกอร์การแข่งขันให้ครบทั้งสองทีม', 'error');
+    showToast(window.t('toast_score_missing'), 'error');
     return;
   }
 
@@ -1139,21 +1141,21 @@ async function saveMatchResult(matchId) {
 
     const data = await response.json();
     if (data.success) {
-      showToast('บันทึกสกอร์และจบการแข่งขันสำเร็จ!', 'success');
+      showToast(window.t('toast_score_saved'), 'success');
       loadAdminMatches();
       loadMatches(true);
       loadLeaderboard(true);
     } else {
-      showToast(data.message || 'บันทึกสกอร์ล้มเหลว', 'error');
+      showToast(data.message || window.t('toast_score_fail'), 'error');
     }
   } catch (err) {
     console.error(err);
-    showToast('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์', 'error');
+    showToast(window.t('toast_server_error'), 'error');
   }
 }
 
 async function resetMatchResult(matchId) {
-  if (!confirm('คุณต้องการยกเลิกผลการแข่งขันนี้และให้ผู้เล่นกลับไปทายผลใหม่ได้ (หากยังไม่ถึงเวลาแข่งขัน)?')) {
+  if (!confirm(window.t('confirm_reset_match'))) {
     return;
   }
 
@@ -1169,16 +1171,16 @@ async function resetMatchResult(matchId) {
 
     const data = await response.json();
     if (data.success) {
-      showToast('ยกเลิกผลการแข่งขันและรีเซ็ตสถานะสำเร็จ', 'success');
+      showToast(window.t('toast_match_reset'), 'success');
       loadAdminMatches();
       loadMatches(true);
       loadLeaderboard(true);
     } else {
-      showToast(data.message || 'รีเซ็ตไม่สำเร็จ', 'error');
+      showToast(data.message || window.t('toast_match_reset_fail'), 'error');
     }
   } catch (err) {
     console.error(err);
-    showToast('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์', 'error');
+    showToast(window.t('toast_server_error'), 'error');
   }
 }
 
@@ -1192,17 +1194,17 @@ function showChangePinInline(playerId, playerName) {
   cell.innerHTML = `
     <div style="display:flex;gap:0.35rem;align-items:center;">
       <input type="text" id="pin-input-${playerId}" maxlength="4" inputmode="numeric"
-        placeholder="4 หลัก"
+        placeholder="${window.t('admin_pin_ph_small')}"
         style="width:68px;padding:0.25rem 0.4rem;border-radius:6px;
                background:rgba(0,0,0,0.3);border:1px solid rgba(0,242,254,0.4);
                color:#fff;font-family:var(--font-primary);font-size:0.85rem;text-align:center;"
         onkeydown="if(event.key==='Enter')submitPinChange('${playerId}','${playerName.replace(/'/g, "\\'")}');
                    if(event.key==='Escape')loadAdminPlayers();">
-      <button class="btn-sm-success" title="บันทึก"
+      <button class="btn-sm-success" title="${window.t('admin_save')}"
         onclick="submitPinChange('${playerId}', '${playerName.replace(/'/g, "\\'")}')">
         <i class="fa-solid fa-check"></i>
       </button>
-      <button class="btn-sm-ghost" title="ยกเลิก" onclick="loadAdminPlayers()">
+      <button class="btn-sm-ghost" title="${window.t('admin_cancel')}" onclick="loadAdminPlayers()">
         <i class="fa-solid fa-xmark"></i>
       </button>
     </div>`;
@@ -1216,7 +1218,7 @@ async function submitPinChange(playerId, playerName) {
   const newPin = input.value.trim();
 
   if (!/^\d{4}$/.test(newPin)) {
-    showToast('PIN ต้องเป็นตัวเลข 4 หลักเท่านั้น', 'error');
+    showToast(window.t('toast_pin_invalid'), 'error');
     input.focus();
     return;
   }
@@ -1229,14 +1231,14 @@ async function submitPinChange(playerId, playerName) {
     });
     const data = await res.json();
     if (data.success) {
-      showToast(`เปลี่ยน PIN ของ ${playerName} สำเร็จ`, 'success');
+      showToast(window.t('toast_pin_changed', { name: playerName }), 'success');
       loadAdminPlayers();
     } else {
-      showToast(data.message || 'เปลี่ยน PIN ไม่สำเร็จ', 'error');
+      showToast(data.message || window.t('toast_pin_change_fail'), 'error');
     }
   } catch (err) {
     console.error(err);
-    showToast('เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
+    showToast(window.t('toast_connection_error'), 'error');
   }
 }
 
@@ -1246,7 +1248,7 @@ async function submitAdminPinChange() {
   const newPin = input.value.trim();
 
   if (!/^\d{4}$/.test(newPin)) {
-    showToast('PIN ต้องเป็นตัวเลข 4 หลักเท่านั้น', 'error');
+    showToast(window.t('toast_pin_invalid'), 'error');
     input.focus();
     return;
   }
@@ -1259,14 +1261,14 @@ async function submitAdminPinChange() {
     });
     const data = await res.json();
     if (data.success) {
-      showToast('เปลี่ยน PIN ของ Admin สำเร็จ', 'success');
+      showToast(window.t('toast_pin_changed', { name: 'Admin' }), 'success');
       input.value = '';
     } else {
-      showToast(data.message || 'เปลี่ยน PIN ไม่สำเร็จ', 'error');
+      showToast(data.message || window.t('toast_pin_change_fail'), 'error');
     }
   } catch (err) {
     console.error(err);
-    showToast('เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
+    showToast(window.t('toast_connection_error'), 'error');
   }
 }
 
@@ -1384,3 +1386,9 @@ function triggerDownload(blob, filename) {
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 }
+
+// Expose functions needed by i18n.js for re-render on language switch
+window.renderMatches = renderMatches;
+window.renderLeaderboard = renderLeaderboard;
+window.loadAdminPlayers = loadAdminPlayers;
+window.loadAdminMatches = loadAdminMatches;

@@ -19,10 +19,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;700;900&family=Outfit:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
-  
+
   <!-- FontAwesome for Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  
+
   <!-- Custom CSS stylesheet -->
   <link rel="stylesheet" href="style.css">
 </head>
@@ -42,8 +42,11 @@
           <p class="subtitle">Predictor Pool</p>
         </div>
       </div>
-      
+
       <div class="header-right">
+        <!-- Language Toggle -->
+        <button id="lang-toggle" class="btn-lang-toggle" onclick="window.setLang && window.setLang(window.getCurrentLang && window.getCurrentLang() === 'th' ? 'en' : 'th')">EN</button>
+
         <!-- User Info / Login status -->
         <div id="user-status" class="user-status-card hidden">
           <span class="user-avatar"><i class="fa-solid fa-user"></i></span>
@@ -51,12 +54,12 @@
             <span id="display-name" class="name">Username</span>
             <span id="user-role" class="role">Player</span>
           </div>
-          <button id="logout-btn" class="btn-logout" title="ออกจากระบบ">
+          <button id="logout-btn" class="btn-logout" data-i18n-title="logout_title" title="ออกจากระบบ">
             <i class="fa-solid fa-arrow-right-from-bracket"></i>
           </button>
         </div>
         <button id="login-trigger-btn" class="btn-primary login-btn">
-          <i class="fa-solid fa-key"></i> เข้าสู่ระบบ
+          <i class="fa-solid fa-key"></i> <span data-i18n="login_btn">เข้าสู่ระบบ</span>
         </button>
       </div>
     </div>
@@ -66,13 +69,13 @@
   <nav class="nav-tabs">
     <div class="container tabs-container">
       <button class="tab-link active" data-tab="predict-tab">
-        <i class="fa-solid fa-futbol"></i> ทายผลบอล
+        <i class="fa-solid fa-futbol"></i> <span data-i18n="tab_predict">ทายผลบอล</span>
       </button>
       <button class="tab-link" data-tab="leaderboard-tab">
-        <i class="fa-solid fa-ranking-star"></i> ตารางคะแนน & Live
+        <i class="fa-solid fa-ranking-star"></i> <span data-i18n="tab_leaderboard">ตารางคะแนน & Live</span>
       </button>
       <button class="tab-link admin-only hidden" data-tab="admin-tab" id="admin-tab-btn">
-        <i class="fa-solid fa-user-gear"></i> จัดการระบบ (Admin)
+        <i class="fa-solid fa-user-gear"></i> <span data-i18n="tab_admin">จัดการระบบ (Admin)</span>
       </button>
     </div>
   </nav>
@@ -80,7 +83,7 @@
 
   <!-- Main Content Areas -->
   <main class="container">
-    
+
     <!-- NOTIFICATION POPUP -->
     <div id="toast-container" class="toast-container"></div>
 
@@ -88,20 +91,20 @@
     <div id="login-modal" class="modal-overlay hidden">
       <div class="modal-content glass-card animate-zoom">
         <div class="modal-header">
-          <h2><i class="fa-solid fa-shield-halved"></i> ยืนยันตัวตนเพื่อเข้าใช้งาน</h2>
+          <h2><i class="fa-solid fa-shield-halved"></i> <span data-i18n="login_modal_title">ยืนยันตัวตนเพื่อเข้าใช้งาน</span></h2>
           <button id="close-login-btn" class="btn-close">&times;</button>
         </div>
         <form id="login-form">
           <div class="form-group">
-            <label for="login-username"><i class="fa-solid fa-user"></i> ชื่อผู้ใช้งาน (Username)</label>
-            <input type="text" id="login-username" placeholder="เช่น somchai" required autocomplete="username">
+            <label for="login-username"><i class="fa-solid fa-user"></i> <span data-i18n="login_username_label">ชื่อผู้ใช้งาน (Username)</span></label>
+            <input type="text" id="login-username" data-i18n-ph="login_username_ph" placeholder="เช่น somchai" required autocomplete="username">
           </div>
           <div class="form-group">
-            <label for="login-pin"><i class="fa-solid fa-lock"></i> PIN เข้ารหัส (4 หลัก)</label>
+            <label for="login-pin"><i class="fa-solid fa-lock"></i> <span data-i18n="login_pin_label">PIN เข้ารหัส (4 หลัก)</span></label>
             <input type="password" id="login-pin" placeholder="••••" maxlength="4" inputmode="numeric" required autocomplete="current-password">
           </div>
           <button type="submit" class="btn-submit">
-            <span class="btn-text">เข้าสู่ระบบ</span>
+            <span class="btn-text" data-i18n="login_submit">เข้าสู่ระบบ</span>
             <i class="fa-solid fa-circle-notch fa-spin btn-spinner hidden"></i>
           </button>
         </form>
@@ -111,25 +114,25 @@
     <!-- 2. PREDICT TAB -->
     <section id="predict-tab" class="tab-content active">
       <div class="section-header">
-        <h2><i class="fa-regular fa-square-check"></i> รายการแข่งขัน & ทายผล</h2>
+        <h2><i class="fa-regular fa-square-check"></i> <span data-i18n="predict_section_title">รายการแข่งขัน & ทายผล</span></h2>
         <div class="info-badge">
-          <i class="fa-regular fa-clock"></i> ปิดทายผลก่อนเริ่มแข่ง 15 นาที
+          <i class="fa-regular fa-clock"></i> <span data-i18n="predict_lock_info">ปิดทายผลก่อนเริ่มแข่ง 15 นาที</span>
         </div>
       </div>
-      
+
       <!-- Filter buttons for Match state -->
       <div class="match-filters">
-        <button class="filter-btn active" data-filter="all">ทั้งหมด <span class="filter-count"></span></button>
-        <button class="filter-btn" data-filter="open">เปิดทายผล <span class="filter-count"></span></button>
-        <button class="filter-btn" data-filter="locked">ปิดทายผลแล้ว <span class="filter-count"></span></button>
-        <button class="filter-btn" data-filter="finished">แข่งจบแล้ว <span class="filter-count"></span></button>
+        <button class="filter-btn active" data-filter="all"><span data-i18n="filter_all">ทั้งหมด</span> <span class="filter-count"></span></button>
+        <button class="filter-btn" data-filter="open"><span data-i18n="filter_open">เปิดทายผล</span> <span class="filter-count"></span></button>
+        <button class="filter-btn" data-filter="locked"><span data-i18n="filter_locked">ปิดทายผลแล้ว</span> <span class="filter-count"></span></button>
+        <button class="filter-btn" data-filter="finished"><span data-i18n="filter_finished">แข่งจบแล้ว</span> <span class="filter-count"></span></button>
       </div>
 
       <!-- Matches Grid -->
       <div id="matches-grid" class="matches-grid">
         <!-- Dynamically rendered match cards -->
         <div class="loading-spinner">
-          <i class="fa-solid fa-circle-notch fa-spin"></i> กำลังโหลดข้อมูล...
+          <i class="fa-solid fa-circle-notch fa-spin"></i> <span data-i18n="loading">กำลังโหลดข้อมูล...</span>
         </div>
       </div>
     </section>
@@ -140,17 +143,17 @@
         <!-- Standings Table -->
         <div class="glass-card table-card">
           <div class="card-header">
-            <h3><i class="fa-solid fa-trophy text-gold"></i> ตารางคะแนนผู้เล่น (Leaderboard)</h3>
+            <h3><i class="fa-solid fa-trophy text-gold"></i> <span data-i18n="leaderboard_title">ตารางคะแนนผู้เล่น (Leaderboard)</span></h3>
             <span class="badge badge-success">Real-time</span>
           </div>
           <div class="table-responsive">
             <table class="leaderboard-table">
               <thead>
                 <tr>
-                  <th>อันดับ</th>
-                  <th>ผู้ทายผล</th>
-                  <th class="text-center">ทายถูก / ทั้งหมด</th>
-                  <th class="text-right">คะแนนรวม</th>
+                  <th data-i18n="col_rank">อันดับ</th>
+                  <th data-i18n="col_player">ผู้ทายผล</th>
+                  <th class="text-center" data-i18n="col_correct">ทายถูก / ทั้งหมด</th>
+                  <th class="text-right" data-i18n="col_points">คะแนนรวม</th>
                 </tr>
               </thead>
               <tbody id="leaderboard-body">
@@ -163,10 +166,10 @@
         <!-- Prediction Grid / Live Compare -->
         <div class="glass-card grid-compare-card">
           <div class="card-header">
-            <h3><i class="fa-solid fa-border-all text-blue"></i> ตารางวิเคราะห์เปรียบเทียบ (Matrix)</h3>
-            <span class="badge badge-info">ทายถูก +1 คะแนน</span>
+            <h3><i class="fa-solid fa-border-all text-blue"></i> <span data-i18n="matrix_title">ตารางวิเคราะห์เปรียบเทียบ (Matrix)</span></h3>
+            <span class="badge badge-info" data-i18n="matrix_badge">ทายถูก +1 คะแนน</span>
           </div>
-          <p class="description-text">แสดงผลทายของแต่ละคนในคู่ที่ปิดรับแล้วเพื่อความโปร่งใสและร่วมลุ้นด้วยกัน</p>
+          <p class="description-text" data-i18n="matrix_desc">แสดงผลทายของแต่ละคนในคู่ที่ปิดรับแล้วเพื่อความโปร่งใสและร่วมลุ้นด้วยกัน</p>
           <div class="table-responsive matrix-container">
             <table class="matrix-table">
               <thead>
@@ -180,11 +183,11 @@
             </table>
           </div>
           <div class="matrix-legend">
-            <span class="legend-item"><span class="legend-dot bg-team1"></span> ทีมฝั่งซ้ายชนะ (เช่น MEX)</span>
-            <span class="legend-item"><span class="legend-dot bg-draw"></span> เสมอ (Draw)</span>
-            <span class="legend-item"><span class="legend-dot bg-team2"></span> ทีมฝั่งขวาชนะ (เช่น AUS)</span>
-            <span class="legend-item"><span class="legend-dot bg-success"></span> ทายถูก (+1 คะแนน)</span>
-            <span class="legend-item"><span class="legend-dot bg-danger"></span> ทายผิด (0 คะแนน)</span>
+            <span class="legend-item"><span class="legend-dot bg-team1"></span> <span data-i18n="legend_team1">ทีมฝั่งซ้ายชนะ (เช่น MEX)</span></span>
+            <span class="legend-item"><span class="legend-dot bg-draw"></span> <span data-i18n="legend_draw_legend">เสมอ (Draw)</span></span>
+            <span class="legend-item"><span class="legend-dot bg-team2"></span> <span data-i18n="legend_team2">ทีมฝั่งขวาชนะ (เช่น AUS)</span></span>
+            <span class="legend-item"><span class="legend-dot bg-success"></span> <span data-i18n="legend_correct">ทายถูก (+1 คะแนน)</span></span>
+            <span class="legend-item"><span class="legend-dot bg-danger"></span> <span data-i18n="legend_wrong">ทายผิด (0 คะแนน)</span></span>
           </div>
         </div>
       </div>
@@ -193,20 +196,20 @@
     <!-- 4. ADMIN TAB -->
     <section id="admin-tab" class="tab-content hidden">
       <div class="grid-2col">
-        
+
         <!-- Player Management -->
         <div class="glass-card">
           <div class="card-header">
-            <h3><i class="fa-solid fa-users-gear"></i> จัดการผู้เล่น (<span id="player-count">0</span> คน)</h3>
+            <h3><i class="fa-solid fa-users-gear"></i> <span data-i18n="admin_players_title">จัดการผู้เล่น</span> (<span id="player-count">0</span> <span data-i18n="admin_players_count_suffix">คน</span>)</h3>
           </div>
-          
+
           <!-- Add Player Form -->
           <form id="add-player-form" class="form-horizontal">
             <div class="form-row">
-              <input type="text" id="new-player-name" placeholder="ชื่อแสดง (เช่น สมชาย สุดยอด)" required>
-              <input type="text" id="new-player-username" placeholder="Username (เช่น somchai)" required>
-              <input type="text" id="new-player-pin" placeholder="PIN 4 หลัก" maxlength="4" inputmode="numeric" required>
-              <button type="submit" class="btn-primary-glow"><i class="fa-solid fa-user-plus"></i> เพิ่ม</button>
+              <input type="text" id="new-player-name" data-i18n-ph="admin_name_ph" placeholder="ชื่อแสดง (เช่น สมชาย สุดยอด)" required>
+              <input type="text" id="new-player-username" data-i18n-ph="admin_username_ph" placeholder="Username (เช่น somchai)" required>
+              <input type="text" id="new-player-pin" data-i18n-ph="admin_pin_ph" placeholder="PIN 4 หลัก" maxlength="4" inputmode="numeric" required>
+              <button type="submit" class="btn-primary-glow"><i class="fa-solid fa-user-plus"></i> <span data-i18n="admin_add_btn">เพิ่ม</span></button>
             </div>
           </form>
 
@@ -214,10 +217,10 @@
             <table class="admin-table">
               <thead>
                 <tr>
-                  <th>ชื่อแสดง</th>
-                  <th>Username</th>
-                  <th>PIN</th>
-                  <th class="text-center">การจัดการ</th>
+                  <th data-i18n="admin_col_name">ชื่อแสดง</th>
+                  <th data-i18n="admin_col_username">Username</th>
+                  <th data-i18n="admin_col_pin">PIN</th>
+                  <th class="text-center" data-i18n="admin_col_action">การจัดการ</th>
                 </tr>
               </thead>
               <tbody id="admin-players-body">
@@ -228,12 +231,13 @@
 
           <!-- Change Admin PIN -->
           <div class="admin-self-pin">
-            <span class="admin-self-pin-label"><i class="fa-solid fa-user-shield"></i> เปลี่ยน PIN ของ Admin</span>
+            <span class="admin-self-pin-label"><i class="fa-solid fa-user-shield"></i> <span data-i18n="admin_change_pin_label">เปลี่ยน PIN ของ Admin</span></span>
             <input type="password" id="admin-self-pin-input" maxlength="4" inputmode="numeric"
+              data-i18n-ph="admin_new_pin_ph"
               placeholder="PIN ใหม่ 4 หลัก"
               onkeydown="if(event.key==='Enter')submitAdminPinChange()">
             <button class="btn-sm-success" onclick="submitAdminPinChange()">
-              <i class="fa-solid fa-check"></i> บันทึก
+              <i class="fa-solid fa-check"></i> <span data-i18n="admin_save">บันทึก</span>
             </button>
           </div>
         </div>
@@ -241,54 +245,54 @@
         <!-- Match Result Management -->
         <div class="glass-card">
           <div class="card-header">
-            <h3><i class="fa-solid fa-calendar-check"></i> รายการคู่แข่ง & บันทึกผลการแข่งขัน</h3>
-            <button id="add-match-trigger-btn" class="btn-sm-primary"><i class="fa-solid fa-plus"></i> เพิ่มคู่แข่ง</button>
+            <h3><i class="fa-solid fa-calendar-check"></i> <span data-i18n="admin_matches_title">รายการคู่แข่ง & บันทึกผลการแข่งขัน</span></h3>
+            <button id="add-match-trigger-btn" class="btn-sm-primary"><i class="fa-solid fa-plus"></i> <span data-i18n="admin_add_match_btn">เพิ่มคู่แข่ง</span></button>
           </div>
 
           <!-- Add Match Modal-like overlay (simplified inline) -->
           <form id="add-match-form" class="inline-form hidden animate-fade-in">
-            <h4><i class="fa-solid fa-plus-circle"></i> เพิ่มคู่แข่งขันใหม่</h4>
+            <h4><i class="fa-solid fa-plus-circle"></i> <span data-i18n="admin_add_match_title">เพิ่มคู่แข่งขันใหม่</span></h4>
             <div class="form-grid-3">
               <div class="form-group">
-                <label>ทีมแรก (ทีม 1)</label>
+                <label data-i18n="admin_team1_label">ทีมแรก (ทีม 1)</label>
                 <input type="text" id="match-team1" placeholder="เช่น Brazil" required>
               </div>
               <div class="form-group">
-                <label>ธงทีมแรก (Emoji)</label>
+                <label data-i18n="admin_team1_flag_label">ธงทีมแรก (Emoji)</label>
                 <input type="text" id="match-team1-flag" placeholder="เช่น 🇧🇷" maxlength="4" required>
               </div>
               <div class="form-group">
-                <label>ทีมสอง (ทีม 2)</label>
+                <label data-i18n="admin_team2_label">ทีมสอง (ทีม 2)</label>
                 <input type="text" id="match-team2" placeholder="เช่น Croatia" required>
               </div>
               <div class="form-group">
-                <label>ธงทีมสอง (Emoji)</label>
+                <label data-i18n="admin_team2_flag_label">ธงทีมสอง (Emoji)</label>
                 <input type="text" id="match-team2-flag" placeholder="เช่น 🇭🇷" maxlength="4" required>
               </div>
               <div class="form-group">
-                <label>กลุ่ม (เช่น A, B, R16)</label>
+                <label data-i18n="admin_group_label">กลุ่ม (เช่น A, B, R16)</label>
                 <input type="text" id="match-group" placeholder="เช่น A" maxlength="10">
               </div>
               <div class="form-group">
-                <label>รอบการแข่งขัน</label>
+                <label data-i18n="admin_round_label">รอบการแข่งขัน</label>
                 <select id="match-type" style="background: rgba(0, 0, 0, 0.25); border: 1px solid var(--border-color); border-radius: 8px; padding: 0.6rem 0.8rem; color: #ffffff; font-family: var(--font-primary); font-size: 0.9rem; width: 100%;">
-                  <option value="group">รอบแบ่งกลุ่ม (Group Stage)</option>
-                  <option value="r32">รอบ 32 ทีม (Round of 32)</option>
-                  <option value="r16">รอบ 16 ทีม (Round of 16)</option>
-                  <option value="qf">รอบ 8 ทีม (Quarter-finals)</option>
-                  <option value="sf">รอบรองชนะเลิศ (Semi-finals)</option>
-                  <option value="third">รอบชิงอันดับ 3 (Third place)</option>
-                  <option value="final">รอบชิงชนะเลิศ (Final)</option>
+                  <option value="group" data-i18n-opt="round_opt_group">รอบแบ่งกลุ่ม (Group Stage)</option>
+                  <option value="r32" data-i18n-opt="round_opt_r32">รอบ 32 ทีม (Round of 32)</option>
+                  <option value="r16" data-i18n-opt="round_opt_r16">รอบ 16 ทีม (Round of 16)</option>
+                  <option value="qf" data-i18n-opt="round_opt_qf">รอบ 8 ทีม (Quarter-finals)</option>
+                  <option value="sf" data-i18n-opt="round_opt_sf">รอบรองชนะเลิศ (Semi-finals)</option>
+                  <option value="third" data-i18n-opt="round_opt_third">รอบชิงอันดับ 3 (Third place)</option>
+                  <option value="final" data-i18n-opt="round_opt_final">รอบชิงชนะเลิศ (Final)</option>
                 </select>
               </div>
               <div class="form-group-full">
-                <label>เวลาแข่งขัน (ตามเวลาไทย)</label>
+                <label data-i18n="admin_kickoff_label">เวลาแข่งขัน (ตามเวลาไทย)</label>
                 <input type="datetime-local" id="match-kickoff" required>
               </div>
             </div>
             <div class="form-actions">
-              <button type="button" id="cancel-match-btn" class="btn-secondary">ยกเลิก</button>
-              <button type="submit" class="btn-success">บันทึกคู่แข่งขัน</button>
+              <button type="button" id="cancel-match-btn" class="btn-secondary" data-i18n="admin_cancel">ยกเลิก</button>
+              <button type="submit" class="btn-success" data-i18n="admin_save_match">บันทึกคู่แข่งขัน</button>
             </div>
           </form>
 
@@ -296,10 +300,10 @@
             <table class="admin-table">
               <thead>
                 <tr>
-                  <th>เวลาแข่ง (ไทย)</th>
-                  <th>คู่แข่งขัน</th>
-                  <th class="text-center">สกอร์จริง</th>
-                  <th class="text-center">การจัดการ</th>
+                  <th data-i18n="admin_col_kickoff">เวลาแข่ง (ไทย)</th>
+                  <th data-i18n="admin_col_match">คู่แข่งขัน</th>
+                  <th class="text-center" data-i18n="admin_col_score">สกอร์จริง</th>
+                  <th class="text-center" data-i18n="admin_col_manage">การจัดการ</th>
                 </tr>
               </thead>
               <tbody id="admin-matches-body">
@@ -314,22 +318,22 @@
       <!-- Export & Backup -->
       <div class="glass-card admin-export-card" style="margin-top: 1.5rem;">
         <div class="card-header">
-          <h3><i class="fa-solid fa-file-export"></i> ส่งออก & สำรองข้อมูล (Export & Backup)</h3>
+          <h3><i class="fa-solid fa-file-export"></i> <span data-i18n="admin_export_title">ส่งออก & สำรองข้อมูล (Export & Backup)</span></h3>
         </div>
-        <p class="description-text">ดาวน์โหลดข้อมูลทายผลและผลการแข่งขันทั้งหมดในรูปแบบที่ต้องการ</p>
+        <p class="description-text" data-i18n="admin_export_desc">ดาวน์โหลดข้อมูลทายผลและผลการแข่งขันทั้งหมดในรูปแบบที่ต้องการ</p>
         <div class="export-actions">
           <button id="export-csv-btn" class="btn-export">
             <i class="fa-solid fa-table fa-lg"></i>
             <div>
-              <div class="export-btn-title">ส่งออก Excel / CSV</div>
-              <div class="export-btn-sub">ตารางคะแนน + ผลทายทั้งหมด</div>
+              <div class="export-btn-title" data-i18n="admin_export_csv_title">ส่งออก Excel / CSV</div>
+              <div class="export-btn-sub" data-i18n="admin_export_csv_sub">ตารางคะแนน + ผลทายทั้งหมด</div>
             </div>
           </button>
           <button id="export-json-btn" class="btn-export btn-export-json">
             <i class="fa-solid fa-database fa-lg"></i>
             <div>
-              <div class="export-btn-title">สำรองฐานข้อมูล (JSON)</div>
-              <div class="export-btn-sub">ไฟล์สำรองสำหรับกู้คืนระบบ</div>
+              <div class="export-btn-title" data-i18n="admin_export_json_title">สำรองฐานข้อมูล (JSON)</div>
+              <div class="export-btn-sub" data-i18n="admin_export_json_sub">ไฟล์สำรองสำหรับกู้คืนระบบ</div>
             </div>
           </button>
         </div>
@@ -337,12 +341,12 @@
 
       <!-- Danger Zone System Reset -->
       <div class="glass-card" style="margin-top: 1.5rem; border-color: rgba(239, 68, 68, 0.3);">
-        <h3 style="color: var(--color-danger);"><i class="fa-solid fa-triangle-exclamation"></i> Danger Zone (พื้นที่อันตราย)</h3>
-        <p class="description-text" style="margin-top: 0.5rem; margin-bottom: 1rem;">
+        <h3 style="color: var(--color-danger);"><i class="fa-solid fa-triangle-exclamation"></i> <span data-i18n="admin_danger_title">Danger Zone (พื้นที่อันตราย)</span></h3>
+        <p class="description-text" data-i18n="admin_danger_desc" style="margin-top: 0.5rem; margin-bottom: 1rem;">
           รีเซ็ตข้อมูลคะแนน คะแนนทายผล และผู้ทายผลทั้งหมดในระบบ (บัญชีผู้ดูแลระบบ (Admin) จะไม่ถูกลบ) เพื่อเริ่มฤดูกาลแข่งขันใหม่ จากนั้นระบบจะดึงตารางแข่งขันจริงใหม่อัตโนมัติ
         </p>
         <button id="reset-db-btn" class="btn-sm-danger" style="padding: 0.6rem 1.25rem; font-weight: 600; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem;">
-          <i class="fa-solid fa-trash-arrow-up"></i> ล้างข้อมูลและรีเซ็ตระบบเริ่มต้นใหม่ (Reset Predictor Data)
+          <i class="fa-solid fa-trash-arrow-up"></i> <span data-i18n="admin_reset_btn">ล้างข้อมูลและรีเซ็ตระบบเริ่มต้นใหม่ (Reset Predictor Data)</span>
         </button>
       </div>
     </section>
@@ -352,12 +356,13 @@
   <!-- Footer -->
   <footer>
     <div class="container footer-content">
-      <p>© 2026 FIFA World Cup Predictor App. พัฒนาขึ้นด้วย ❤️ สำหรับความสนุกในหมู่คณะ</p>
-      <p class="current-time-footer">เวลาในระบบขณะนี้: <span id="server-time-display">--:--:--</span> | v<span id="app-version">...</span></p>
+      <p>© 2026 FIFA World Cup Predictor App. <span data-i18n="footer_tagline">พัฒนาขึ้นด้วย ❤️ สำหรับความสนุกในหมู่คณะ</span></p>
+      <p class="current-time-footer"><span data-i18n="footer_time">เวลาในระบบขณะนี้:</span> <span id="server-time-display">--:--:--</span> | v<span id="app-version">...</span></p>
     </div>
   </footer>
 
   <!-- Script files -->
+  <script src="i18n.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
