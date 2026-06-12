@@ -13,7 +13,9 @@ Featuring a sleek, glassmorphic dark theme ("Midnight Neon"), automatic backgrou
 - **⏱️ Locked Predictions:** Predictions are automatically locked **15 minutes before kickoff** (Bangkok local time).
 - **📊 Real-time Leaderboard:** Standings calculated dynamically — 1 point per correct outcome. Updates every 15 seconds.
 - **🕸️ Analysis Matrix:** A horizontally-scrollable comparison grid showing everyone's predictions side-by-side with a sticky player-name column.
-- **🔄 Auto API Sync:** Automatically fetches real-time scores, match schedules, and results from the official World Cup API every 5 minutes.
+- **🔄 Auto API Sync:** Automatically fetches real-time scores, match schedules, and results from the official World Cup API every 60 seconds.
+- **🔴 Live Score Display:** Match cards show a pulsing LIVE badge with the current score during in-progress matches.
+- **🌐 Thai / English UI:** Toggle between Thai and English with a single button — all labels, dates, and match cards switch instantly.
 - **🛠️ Admin Panel:** Manage players, manually add custom matches, record actual scores, and access export tools.
 - **📤 Export & Backup System:** Download predictions as a CSV (opens in Excel with full Thai character support) or export the full database as a JSON backup for disaster recovery.
 - **📱 Mobile-Optimised:** Fully responsive layout across all screen sizes — match cards, leaderboard, and matrix all work cleanly on phones and tablets.
@@ -145,6 +147,7 @@ Open **`http://localhost:3000`** in your browser.
 ├── public/
 │   ├── index.html           # Single-page app shell + all markup
 │   ├── app.js               # SPA logic: polling, rendering, predictions, export
+│   ├── i18n.js              # Thai/English translations + language switching
 │   └── style.css            # Midnight Neon theme + responsive breakpoints
 ├── CLAUDE.md                # Codebase guide for AI-assisted development
 ├── db.json                  # Seed / template database
@@ -171,12 +174,14 @@ Monitor builds at: [github.com/mrkaqz/worldcup/actions](https://github.com/mrkaq
 
 | Version | Highlights |
 |---------|-----------|
+| v2.3.2 | Live score + pulsing LIVE badge during matches; API sync every 60s; time-based live fallback |
+| v2.3.1 | Thai / English language toggle (i18n); locale-aware date formatting |
+| v2.2.2 | Mask predictions as `***` until match locks; reveal all choices at lockout |
+| v2.2.1 | Preserve open accordion state across background polls |
+| v2.2.0 | Skip re-render when polled data is unchanged; Google Analytics integration |
+| v2.1.0 | Gold / silver / bronze medals for top 3; equal prize split for tied players |
 | v2.0.1 | Fix CSV prediction matrix showing empty columns |
 | v2.0.0 | Export & Backup system (CSV + JSON download) |
 | v1.9.0 | Fix nav-to-content gap (CSS specificity fix for `main.container`) |
 | v1.8.0 | Fix matrix sticky column gap / content bleed-through |
 | v1.7.0 | Opaque sticky nav — prevents page content showing through tab bar when scrolling |
-| v1.6.0 | Add top/bottom padding to main content area |
-| v1.5.0 | Increase card padding and card-header spacing |
-| v1.4.0 | Mobile overflow fixes — match cards, predict buttons, teams layout |
-| v1.3.0 | Sticky header + nav improvements |
