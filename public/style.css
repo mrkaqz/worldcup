@@ -548,6 +548,24 @@ main {
   margin-top: 0.25rem;
 }
 
+.live-score.live-active {
+  color: #ff4444;
+  position: relative;
+}
+
+.live-badge {
+  display: inline-block;
+  font-size: 0.6rem;
+  font-weight: 700;
+  background: #ef4444;
+  color: #fff;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  margin-right: 0.4rem;
+  vertical-align: middle;
+  animation: pulse 1.5s infinite;
+}
+
 /* Predict controls */
 .predict-actions {
   display: flex;

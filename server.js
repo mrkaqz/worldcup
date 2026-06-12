@@ -254,8 +254,12 @@ async function syncFromWorldCupAPI() {
           match.status = 'live';
           matchUpdated = true;
           console.log(`[API Sync] Match ${match.team1} vs ${match.team2} is Live: ${homeScore}-${awayScore}`);
+        } else if (!isFinished && !isLive && match.status === 'scheduled' && Date.now() >= new Date(match.kickoff).getTime()) {
+          match.status = 'live';
+          matchUpdated = true;
+          console.log(`[API Sync] Match ${match.team1} vs ${match.team2} marked live by kickoff time`);
         }
-        
+
         if (matchUpdated) {
           updated = true;
         }
@@ -723,5 +727,5 @@ app.listen(PORT, async () => {
   await syncFromWorldCupAPI();
   
   // Sync every 5 minutes in background
-  setInterval(syncFromWorldCupAPI, 5 * 60 * 1000);
+  setInterval(syncFromWorldCupAPI, 60 * 1000);
 });
