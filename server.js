@@ -517,6 +517,7 @@ app.get('/api/leaderboard', (req, res) => {
       team1_flag: m.team1_flag,
       team2: m.team2,
       team2_flag: m.team2_flag,
+      kickoff: m.kickoff,
       winner: m.winner,
       status: m.status,
       score1: m.score1,
