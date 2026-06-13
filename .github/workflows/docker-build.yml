@@ -32,6 +32,10 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Read version from package.json
+      id: pkg
+      run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
     - name: Extract metadata (tags, labels) for Docker
       id: meta
       uses: docker/metadata-action@v5
@@ -39,6 +43,7 @@ jobs:
         images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
         tags: |
           type=raw,value=latest
+          type=raw,value=v${{ steps.pkg.outputs.version }}
           type=sha,format=short
 
     - name: Set up Docker Buildx
