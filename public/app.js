@@ -809,7 +809,17 @@ async function loadLeaderboard(silent = false) {
 function renderLeaderboard() {
   if (!leaderboardData) return;
 
-  const { leaderboard, matches, predictionGrid } = leaderboardData;
+  const { leaderboard, predictionGrid } = leaderboardData;
+
+  // Sort matrix matches: kickoff ascending, finished > 1 day ago sink to bottom
+  const now = Date.now();
+  const oneDayMs = 24 * 60 * 60 * 1000;
+  const matches = [...leaderboardData.matches].sort((a, b) => {
+    const aOld = a.status === 'finished' && (now - new Date(a.kickoff).getTime()) > oneDayMs;
+    const bOld = b.status === 'finished' && (now - new Date(b.kickoff).getTime()) > oneDayMs;
+    if (aOld !== bOld) return aOld ? 1 : -1;
+    return new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime();
+  });
 
   // Render leaderboard standings table
   const body = document.getElementById('leaderboard-body');
