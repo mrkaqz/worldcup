@@ -81,11 +81,20 @@ function calculateLeaderboard(db) {
       const userPreds = db.predictions.filter(p => p.userId === user.id);
 
       db.matches.forEach(match => {
+        let effectiveWinner = null;
         if (match.status === 'finished' && match.winner) {
+          effectiveWinner = match.winner;
+        } else if (match.status === 'live' && match.score1 !== null && match.score2 !== null) {
+          if (match.score1 > match.score2) effectiveWinner = 'team1';
+          else if (match.score2 > match.score1) effectiveWinner = 'team2';
+          else effectiveWinner = 'draw';
+        }
+
+        if (effectiveWinner) {
           const pred = userPreds.find(p => p.matchId === match.id);
           const predictionValue = pred ? pred.prediction : 'draw';
           totalPredicted++;
-          if (predictionValue === match.winner) {
+          if (predictionValue === effectiveWinner) {
             points += 1;
             correctCount++;
           }
