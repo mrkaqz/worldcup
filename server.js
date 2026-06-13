@@ -237,24 +237,27 @@ async function syncFromWorldCupAPI() {
         }
         
         // If API contains result and match status is not finished, sync it
-        if (isFinished && match.status !== 'finished') {
+        // Guard: never trust API's finished/live flag before kickoff time (API sometimes returns stale/incorrect data)
+        const kickoffMs = new Date(match.kickoff).getTime();
+        const pastKickoff = Date.now() >= kickoffMs;
+        if (isFinished && match.status !== 'finished' && pastKickoff) {
           match.score1 = homeScore;
           match.score2 = awayScore;
           match.status = 'finished';
-          
+
           if (homeScore > awayScore) match.winner = 'team1';
           else if (awayScore > homeScore) match.winner = 'team2';
           else match.winner = 'draw';
-          
+
           matchUpdated = true;
           console.log(`[API Sync] Match ${match.team1} vs ${match.team2} finished: ${homeScore}-${awayScore}`);
-        } else if (isLive && (match.score1 !== homeScore || match.score2 !== awayScore || match.status !== 'live')) {
+        } else if (isLive && pastKickoff && (match.score1 !== homeScore || match.score2 !== awayScore || match.status !== 'live')) {
           match.score1 = homeScore;
           match.score2 = awayScore;
           match.status = 'live';
           matchUpdated = true;
           console.log(`[API Sync] Match ${match.team1} vs ${match.team2} is Live: ${homeScore}-${awayScore}`);
-        } else if (!isFinished && !isLive && match.status === 'scheduled' && Date.now() >= new Date(match.kickoff).getTime()) {
+        } else if (!isFinished && !isLive && match.status === 'scheduled' && pastKickoff) {
           match.status = 'live';
           matchUpdated = true;
           console.log(`[API Sync] Match ${match.team1} vs ${match.team2} marked live by kickoff time`);
@@ -283,8 +286,8 @@ async function syncFromWorldCupAPI() {
             kickoff: newKickoff,
             score1: homeScore,
             score2: awayScore,
-            status: isFinished ? 'finished' : (isLive ? 'live' : 'scheduled'),
-            winner: isFinished ? (homeScore > awayScore ? 'team1' : (awayScore > homeScore ? 'team2' : 'draw')) : null,
+            status: (isFinished && Date.now() >= new Date(newKickoff).getTime()) ? 'finished' : ((isLive && Date.now() >= new Date(newKickoff).getTime()) ? 'live' : 'scheduled'),
+            winner: (isFinished && Date.now() >= new Date(newKickoff).getTime()) ? (homeScore > awayScore ? 'team1' : (awayScore > homeScore ? 'team2' : 'draw')) : null,
             group: game.group,
             type: game.type
           };
