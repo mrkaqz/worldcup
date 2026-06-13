@@ -492,8 +492,20 @@ function renderMatches() {
     return;
   }
 
+  // Sort: kickoff ascending; in "all" view, finished > 1 day ago sink to the bottom
+  const now = Date.now();
+  const oneDayMs = 24 * 60 * 60 * 1000;
+  const sortedMatches = [...filteredMatches].sort((a, b) => {
+    if (matchFilter === 'all') {
+      const aOld = a.status === 'finished' && (now - new Date(a.kickoff).getTime()) > oneDayMs;
+      const bOld = b.status === 'finished' && (now - new Date(b.kickoff).getTime()) > oneDayMs;
+      if (aOld !== bOld) return aOld ? 1 : -1;
+    }
+    return new Date(a.kickoff).getTime() - new Date(b.kickoff).getTime();
+  });
+
   // Create match cards
-  const cardsHtml = filteredMatches.map(match => {
+  const cardsHtml = sortedMatches.map(match => {
     const kickoffDate = new Date(match.kickoff);
     const lang = window.getCurrentLang ? window.getCurrentLang() : 'th';
     const kickoffStr = kickoffDate.toLocaleString(lang === 'th' ? 'th-TH' : 'en-US', {
