@@ -825,7 +825,7 @@ async function syncLiveScoresFromESPN() {
 
       const statusName = event.status?.type?.name || '';
       const isLive = statusName === 'STATUS_IN_PROGRESS' || statusName === 'STATUS_HALFTIME';
-      const isFinal = statusName === 'STATUS_FINAL';
+      const isFinal = statusName === 'STATUS_FINAL' || statusName === 'STATUS_FULL_TIME';
       if (!isLive && !isFinal) continue;
 
       const homeComp = comp.competitors?.find(c => c.homeAway === 'home');
