@@ -725,6 +725,63 @@ app.post('/api/admin/reset', adminOnly, async (req, res) => {
   res.json({ success: true, message: 'รีเซ็ตระบบเริ่มต้นใหม่และซิงค์ข้อมูลจริงสำเร็จ' });
 });
 
+// Debug: show raw worldcup26.ir API response
+app.get('/api/debug/worldcup', adminOnly, async (req, res) => {
+  try {
+    const r = await fetch('https://worldcup26.ir/get/games');
+    const data = await r.json();
+    const games = data.games || data;
+    res.json({
+      fetched_at: new Date().toISOString(),
+      total: games.length,
+      games: games.map(g => ({
+        id: g.id,
+        home: g.home_team_name_en,
+        away: g.away_team_name_en,
+        home_score: g.home_score,
+        away_score: g.away_score,
+        finished: g.finished,
+        time_elapsed: g.time_elapsed,
+        local_date: g.local_date,
+      }))
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Debug: show raw ESPN scoreboard API response
+app.get('/api/debug/espn', adminOnly, async (req, res) => {
+  try {
+    const r = await fetch(ESPN_SCOREBOARD, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; WorldCupPredictor/1.0)' }
+    });
+    const data = await r.json();
+    const events = data.events || [];
+    res.json({
+      fetched_at: new Date().toISOString(),
+      total: events.length,
+      events: events.map(e => {
+        const comp = e.competitions?.[0];
+        const home = comp?.competitors?.find(c => c.homeAway === 'home');
+        const away = comp?.competitors?.find(c => c.homeAway === 'away');
+        return {
+          id: e.id,
+          name: e.name,
+          status: e.status?.type?.name,
+          clock: e.status?.displayClock,
+          home: home?.team?.displayName,
+          away: away?.team?.displayName,
+          home_score: home?.score,
+          away_score: away?.score,
+        };
+      })
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Export full database as JSON backup
 app.get('/api/admin/export', adminOnly, (req, res) => {
   const db = readDB();
