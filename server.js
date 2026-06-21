@@ -725,8 +725,8 @@ app.post('/api/admin/reset', adminOnly, async (req, res) => {
   res.json({ success: true, message: 'รีเซ็ตระบบเริ่มต้นใหม่และซิงค์ข้อมูลจริงสำเร็จ' });
 });
 
-// Debug: show raw worldcup26.ir API response
-app.get('/api/debug/worldcup', adminOnly, async (req, res) => {
+// Debug: show raw worldcup26.ir API response (public)
+app.get('/api/debug/worldcup', async (req, res) => {
   try {
     const r = await fetch('https://worldcup26.ir/get/games');
     const data = await r.json();
@@ -750,8 +750,8 @@ app.get('/api/debug/worldcup', adminOnly, async (req, res) => {
   }
 });
 
-// Debug: show raw ESPN scoreboard API response
-app.get('/api/debug/espn', adminOnly, async (req, res) => {
+// Debug: show raw ESPN scoreboard API response (public)
+app.get('/api/debug/espn', async (req, res) => {
   try {
     const r = await fetch(ESPN_SCOREBOARD, {
       headers: { 'User-Agent': 'Mozilla/5.0 (compatible; WorldCupPredictor/1.0)' }
