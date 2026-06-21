@@ -768,7 +768,8 @@ async function syncLiveScoresFromESPN() {
 
       const statusName = event.status?.type?.name || '';
       const isLive = statusName === 'STATUS_IN_PROGRESS' || statusName === 'STATUS_HALFTIME';
-      if (!isLive) continue;
+      const isFinal = statusName === 'STATUS_FINAL';
+      if (!isLive && !isFinal) continue;
 
       const homeComp = comp.competitors?.find(c => c.homeAway === 'home');
       const awayComp = comp.competitors?.find(c => c.homeAway === 'away');
@@ -790,7 +791,14 @@ async function syncLiveScoresFromESPN() {
       const newScore1 = reversed ? espnAwayScore : espnHomeScore;
       const newScore2 = reversed ? espnHomeScore : espnAwayScore;
 
-      if (match.score1 !== newScore1 || match.score2 !== newScore2) {
+      if (isFinal && match.status !== 'finished') {
+        match.score1 = newScore1;
+        match.score2 = newScore2;
+        match.status = 'finished';
+        match.winner = newScore1 > newScore2 ? 'team1' : (newScore2 > newScore1 ? 'team2' : 'draw');
+        updated = true;
+        console.log(`[ESPN] ${match.team1} ${newScore1}-${newScore2} ${match.team2} (finished)`);
+      } else if (isLive && (match.score1 !== newScore1 || match.score2 !== newScore2)) {
         match.score1 = newScore1;
         match.score2 = newScore2;
         updated = true;
