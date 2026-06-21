@@ -159,6 +159,12 @@ function isSameTeam(name1, name2) {
   if (n1 === n2) return true;
   if ((n1 === 'united states' || n1 === 'usa') && (n2 === 'united states' || n2 === 'usa')) return true;
   if ((n1 === 'czech republic' || n1 === 'czechia') && (n2 === 'czech republic' || n2 === 'czechia')) return true;
+  // ESPN-specific aliases
+  if ((n1 === 'bosnia & herzegovina' || n1 === 'bosnia and herzegovina') && (n2 === 'bosnia & herzegovina' || n2 === 'bosnia and herzegovina')) return true;
+  if ((n1 === 'democratic republic of congo' || n1 === 'democratic republic of the congo' || n1 === 'dr congo') && (n2 === 'democratic republic of congo' || n2 === 'democratic republic of the congo' || n2 === 'dr congo')) return true;
+  if ((n1 === 'curacao' || n1 === 'curaçao') && (n2 === 'curacao' || n2 === 'curaçao')) return true;
+  if ((n1 === 'ivory coast' || n1 === "côte d'ivoire" || n1 === 'cote d\'ivoire') && (n2 === 'ivory coast' || n2 === "côte d'ivoire" || n2 === 'cote d\'ivoire')) return true;
+  if ((n1 === 'south korea' || n1 === 'korea republic') && (n2 === 'south korea' || n2 === 'korea republic')) return true;
   return false;
 }
 
@@ -733,12 +739,78 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// --- ESPN LIVE SCORE SYNC ---
+// Secondary API: only called when at least one match is live.
+// No API key required; ESPN uses this endpoint for their own website.
+const ESPN_SCOREBOARD = 'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard';
+
+async function syncLiveScoresFromESPN() {
+  const db = readDB();
+  const liveMatches = db.matches.filter(m => m.status === 'live');
+  if (liveMatches.length === 0) return;
+
+  try {
+    const res = await fetch(ESPN_SCOREBOARD, {
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; WorldCupPredictor/1.0)' }
+    });
+    if (!res.ok) {
+      console.warn(`[ESPN] HTTP ${res.status} — skipping live score sync`);
+      return;
+    }
+    const data = await res.json();
+    const events = data.events || [];
+
+    let updated = false;
+
+    for (const event of events) {
+      const comp = event.competitions?.[0];
+      if (!comp) continue;
+
+      const statusName = event.status?.type?.name || '';
+      const isLive = statusName === 'STATUS_IN_PROGRESS' || statusName === 'STATUS_HALFTIME';
+      if (!isLive) continue;
+
+      const homeComp = comp.competitors?.find(c => c.homeAway === 'home');
+      const awayComp = comp.competitors?.find(c => c.homeAway === 'away');
+      if (!homeComp || !awayComp) continue;
+
+      const espnHome = homeComp.team?.displayName || '';
+      const espnAway = awayComp.team?.displayName || '';
+      const espnHomeScore = parseInt(homeComp.score) || 0;
+      const espnAwayScore = parseInt(awayComp.score) || 0;
+
+      const match = liveMatches.find(m =>
+        (isSameTeam(m.team1, espnHome) && isSameTeam(m.team2, espnAway)) ||
+        (isSameTeam(m.team1, espnAway) && isSameTeam(m.team2, espnHome))
+      );
+      if (!match) continue;
+
+      // Align scores to our team1/team2 orientation
+      const reversed = isSameTeam(match.team1, espnAway);
+      const newScore1 = reversed ? espnAwayScore : espnHomeScore;
+      const newScore2 = reversed ? espnHomeScore : espnAwayScore;
+
+      if (match.score1 !== newScore1 || match.score2 !== newScore2) {
+        match.score1 = newScore1;
+        match.score2 = newScore2;
+        updated = true;
+        console.log(`[ESPN] ${match.team1} ${newScore1}-${newScore2} ${match.team2} (live)`);
+      }
+    }
+
+    if (updated) writeDB(db);
+  } catch (err) {
+    console.error('[ESPN] Sync error:', err.message);
+  }
+}
+
 app.listen(PORT, async () => {
   console.log(`Server is running on http://localhost:${PORT}`);
-  
+
   // Initial sync from World Cup 2026 API
   await syncFromWorldCupAPI();
-  
-  // Sync every 5 minutes in background
+
+  // Sync fixtures/results every 60s; live scores from ESPN every 60s (only when a match is live)
   setInterval(syncFromWorldCupAPI, 60 * 1000);
+  setInterval(syncLiveScoresFromESPN, 60 * 1000);
 });
