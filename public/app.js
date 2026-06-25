@@ -11,6 +11,36 @@ let serverTimeInterval = null;
 let countdownInterval = null;
 let refreshInterval = null;
 
+// 3-letter team abbreviations for matrix headers/cells
+function teamAbbr(name) {
+  const CODES = {
+    'Mexico': 'MEX', 'South Africa': 'RSA', 'South Korea': 'KOR',
+    'Czechia': 'CZE', 'Czech Republic': 'CZE', 'Canada': 'CAN',
+    'Bosnia and Herzegovina': 'BIH', 'Bosnia & Herzegovina': 'BIH',
+    'USA': 'USA', 'United States': 'USA', 'Paraguay': 'PAR',
+    'Haiti': 'HAI', 'Scotland': 'SCO', 'Australia': 'AUS', 'Turkey': 'TUR',
+    'Brazil': 'BRA', 'Morocco': 'MAR', 'Qatar': 'QAT', 'Switzerland': 'SUI',
+    'Ivory Coast': 'CIV', "Côte d'Ivoire": 'CIV', 'Ecuador': 'ECU',
+    'Germany': 'GER', 'Curaçao': 'CUW', 'Netherlands': 'NED', 'Japan': 'JPN',
+    'Sweden': 'SWE', 'Tunisia': 'TUN', 'Iran': 'IRN', 'New Zealand': 'NZL',
+    'Spain': 'ESP', 'Cape Verde': 'CPV', 'Belgium': 'BEL', 'Egypt': 'EGY',
+    'Saudi Arabia': 'KSA', 'Uruguay': 'URU', 'France': 'FRA', 'Senegal': 'SEN',
+    'Iraq': 'IRQ', 'Norway': 'NOR', 'Argentina': 'ARG', 'Algeria': 'ALG',
+    'Austria': 'AUT', 'Jordan': 'JOR', 'Portugal': 'POR',
+    'Democratic Republic of the Congo': 'COD', 'DR Congo': 'COD',
+    'England': 'ENG', 'Croatia': 'CRO', 'Uzbekistan': 'UZB', 'Colombia': 'COL',
+    'Ghana': 'GHA', 'Panama': 'PAN',
+  };
+  if (!name) return '???';
+  if (CODES[name]) return CODES[name];
+  // fallback for unknown teams: initials of each word, padded with last word chars
+  const words = name.trim().split(/\s+/);
+  if (words.length === 1) return name.substring(0, 3).toUpperCase();
+  const initials = words.map(w => w[0].toUpperCase()).join('');
+  if (initials.length >= 3) return initials.substring(0, 3);
+  return (initials + words[words.length - 1].substring(1).toUpperCase()).substring(0, 3);
+}
+
 // Country flag mapping (translates team name to FlagCDN ISO 2-letter codes)
 const countryCodes = {
   'brazil': 'br', 'croatia': 'hr', 'france': 'fr', 'argentina': 'ar', 'mexico': 'mx',
@@ -871,7 +901,7 @@ function renderLeaderboard() {
       <th title="${match.team1} vs ${match.team2}">
         <div class="match-flag-header">
           <span class="flags">${getFlagHtmlSmall(match.team1, match.team1_flag)}${getFlagHtmlSmall(match.team2, match.team2_flag)}</span>
-          <span>${match.team1.substring(0, 3)} vs ${match.team2.substring(0, 3)}</span>
+          <span>${teamAbbr(match.team1)} vs ${teamAbbr(match.team2)}</span>
         </div>
       </th>
     `;
@@ -894,13 +924,13 @@ function renderLeaderboard() {
         cellClass = 'pred-hidden';
       } else if (pred) {
         if (pred === 'team1') {
-          displayVal = match.team1.substring(0, 3).toUpperCase();
+          displayVal = teamAbbr(match.team1);
           cellClass = 'pred-team1';
         } else if (pred === 'draw') {
           displayVal = 'Draw';
           cellClass = 'pred-draw';
         } else if (pred === 'team2') {
-          displayVal = match.team2.substring(0, 3).toUpperCase();
+          displayVal = teamAbbr(match.team2);
           cellClass = 'pred-team2';
         }
 
