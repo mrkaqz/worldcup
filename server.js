@@ -28,14 +28,22 @@ if (process.env.DB_PATH) {
 
 app.use(cors());
 app.use(express.json());
-// Prevent browsers from caching app.js/style.css across deploys
-app.use((req, res, next) => {
-  if (req.path.endsWith('.js') || req.path.endsWith('.css')) {
-    res.set('Cache-Control', 'no-cache');
-  }
-  next();
-});
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Serve index.html with versioned asset URLs so Cloudflare/CDN cache is busted on each deploy
+function sendVersionedIndex(res) {
+  const indexPath = path.join(__dirname, 'public', 'index.html');
+  let html = fs.readFileSync(indexPath, 'utf8');
+  html = html
+    .replace('href="style.css"', `href="style.css?v=${version}"`)
+    .replace('src="i18n.js"', `src="i18n.js?v=${version}"`)
+    .replace('src="app.js"', `src="app.js?v=${version}"`);
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.send(html);
+}
+
+app.get('/', (req, res) => sendVersionedIndex(res));
 
 // Helper to read database
 function readDB() {
@@ -792,9 +800,7 @@ app.get('/api/admin/export', adminOnly, (req, res) => {
 });
 
 // Catch all for client SPA routing
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+app.get('*', (req, res) => sendVersionedIndex(res));
 
 // --- ESPN LIVE SCORE SYNC ---
 // Secondary API: only called when at least one match is live.
