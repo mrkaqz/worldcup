@@ -660,7 +660,7 @@ function renderMatches() {
         </div>
 
         <div class="predict-actions">
-          <div class="predict-buttons">
+          <div class="predict-buttons${isKnockout ? ' two-col' : ''}">
             <button class="predict-btn ${isT1Selected} ${t1ResultClass} team1-win"
                     ${isButtonsDisabled}
                     onclick="submitPrediction('${match.id}', 'team1')">
