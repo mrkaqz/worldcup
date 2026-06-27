@@ -93,9 +93,10 @@ function calculateLeaderboard(db) {
         if (match.status === 'finished' && match.winner) {
           effectiveWinner = match.winner;
         } else if (match.status === 'live' && match.score1 !== null && match.score2 !== null) {
+          const isKnockout = match.type && match.type !== 'group';
           if (match.score1 > match.score2) effectiveWinner = 'team1';
           else if (match.score2 > match.score1) effectiveWinner = 'team2';
-          else effectiveWinner = 'draw';
+          else if (!isKnockout) effectiveWinner = 'draw';
         }
 
         if (effectiveWinner) {
@@ -664,7 +665,7 @@ app.post('/api/admin/matches', adminOnly, (req, res) => {
 // Update match result
 app.put('/api/admin/matches/:id/result', adminOnly, (req, res) => {
   const { id } = req.params;
-  const { score1, score2, status } = req.body; // status: 'finished' or 'scheduled'
+  const { score1, score2, status, winner: winnerOverride } = req.body; // status: 'finished' or 'scheduled'
 
   const db = readDB();
   const match = db.matches.find(m => m.id === id);
@@ -685,12 +686,15 @@ app.put('/api/admin/matches/:id/result', adminOnly, (req, res) => {
     match.score2 = s2;
     match.status = 'finished';
     
-    if (s1 > s2) {
+    const isKnockout = match.type && match.type !== 'group';
+    if (winnerOverride === 'team1' || winnerOverride === 'team2') {
+      match.winner = winnerOverride;
+    } else if (s1 > s2) {
       match.winner = 'team1';
     } else if (s2 > s1) {
       match.winner = 'team2';
     } else {
-      match.winner = 'draw';
+      match.winner = isKnockout ? null : 'draw';
     }
   } else {
     // Reset match status to scheduled
@@ -860,7 +864,10 @@ async function syncLiveScoresFromESPN() {
         match.score1 = newScore1;
         match.score2 = newScore2;
         match.status = 'finished';
-        match.winner = newScore1 > newScore2 ? 'team1' : (newScore2 > newScore1 ? 'team2' : 'draw');
+        const isKnockout = match.type && match.type !== 'group';
+        if (newScore1 > newScore2) match.winner = 'team1';
+        else if (newScore2 > newScore1) match.winner = 'team2';
+        else match.winner = isKnockout ? null : 'draw';
         updated = true;
         console.log(`[ESPN] ${match.team1} ${newScore1}-${newScore2} ${match.team2} (finished)`);
       } else if (isLive && (match.score1 !== newScore1 || match.score2 !== newScore2)) {

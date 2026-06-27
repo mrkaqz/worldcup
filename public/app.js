@@ -550,6 +550,7 @@ function renderMatches() {
 
     // Set prediction buttons state
     const isButtonsDisabled = !currentUser || match.locked || match.status === 'finished' ? 'disabled' : '';
+    const isKnockout = match.type && match.type !== 'group';
 
     // Check prediction buttons active selection
     const isT1Selected = match.userPrediction === 'team1' ? 'selected' : '';
@@ -665,11 +666,11 @@ function renderMatches() {
                     onclick="submitPrediction('${match.id}', 'team1')">
               ${match.team1} ${window.t('wins')}
             </button>
-            <button class="predict-btn ${isDrSelected} ${drResultClass} draw-win"
+            ${!isKnockout ? `<button class="predict-btn ${isDrSelected} ${drResultClass} draw-win"
                     ${isButtonsDisabled}
                     onclick="submitPrediction('${match.id}', 'draw')">
               ${window.t('draw')}
-            </button>
+            </button>` : ''}
             <button class="predict-btn ${isT2Selected} ${t2ResultClass} team2-win"
                     ${isButtonsDisabled}
                     onclick="submitPrediction('${match.id}', 'team2')">
@@ -1091,12 +1092,23 @@ async function loadAdminMatches() {
           </button>
         `;
       } else {
+        const isMatchKnockout = match.type && match.type !== 'group';
+        const penaltyWinnerHtml = isMatchKnockout ? `
+          <div style="margin-top:6px;font-size:0.78rem;color:var(--text-muted);">
+            ผู้ชนะ (กรณียิงจุดโทษ):
+            <select id="winner-${match.id}" style="background:var(--card-bg);color:var(--text-primary);border:1px solid var(--border-color);border-radius:4px;padding:2px 4px;font-size:0.78rem;margin-left:4px;">
+              <option value="auto">อัตโนมัติ</option>
+              <option value="team1">${match.team1}</option>
+              <option value="team2">${match.team2}</option>
+            </select>
+          </div>` : '';
         scoreHtml = `
           <div class="admin-score-entry" id="score-form-${match.id}">
             <input type="number" min="0" placeholder="0" class="score-input-1" id="score1-${match.id}">
             <span>-</span>
             <input type="number" min="0" placeholder="0" class="score-input-2" id="score2-${match.id}">
           </div>
+          ${penaltyWinnerHtml}
         `;
         actionHtml = `
           <button class="btn-sm-primary" style="background-color:rgba(16,185,129,0.15); border-color:rgba(16,185,129,0.3); color:#34d399;" onclick="saveMatchResult('${match.id}')">
@@ -1186,6 +1198,9 @@ async function saveMatchResult(matchId) {
   const score1 = parseInt(score1Input.value);
   const score2 = parseInt(score2Input.value);
 
+  const winnerSelect = document.getElementById(`winner-${matchId}`);
+  const winnerOverride = winnerSelect && winnerSelect.value !== 'auto' ? winnerSelect.value : undefined;
+
   try {
     const response = await fetch(`${API_URL}/api/admin/matches/${matchId}/result`, {
       method: 'PUT',
@@ -1193,7 +1208,7 @@ async function saveMatchResult(matchId) {
         'Content-Type': 'application/json',
         'X-User-Id': currentUser.id
       },
-      body: JSON.stringify({ score1, score2, status: 'finished' })
+      body: JSON.stringify({ score1, score2, status: 'finished', ...(winnerOverride ? { winner: winnerOverride } : {}) })
     });
 
     const data = await response.json();
