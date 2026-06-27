@@ -581,7 +581,7 @@ function renderMatches() {
       countdownBadgeHtml = `<span class="countdown locked"><i class="fa-solid fa-circle"></i> ${window.t('finished_label')}</span>`;
     } else {
       countdownBadgeHtml = `
-        <span class="countdown kickoff-countdown" data-kickoff="${match.kickoff}" data-locked="${match.locked}">
+        <span class="countdown kickoff-countdown" data-kickoff="${match.kickoff}" data-locked="${match.locked}" data-clock="${match.clock || ''}">
           <i class="fa-regular fa-clock"></i> ${window.t('loading_time')}
         </span>
       `;
@@ -626,7 +626,7 @@ function renderMatches() {
     const vsOrScoreHtml = match.status === 'finished'
       ? `<div class="live-score">${match.score1} - ${match.score2}</div>`
       : match.status === 'live'
-      ? `<div class="live-score live-active"><span class="live-badge">LIVE</span>${match.score1 ?? 0} - ${match.score2 ?? 0}${match.clock ? `<span class="live-clock">${match.clock}</span>` : ''}</div>`
+      ? `<div class="live-score live-active">${match.score1 ?? 0} - ${match.score2 ?? 0}</div>`
       : `<span class="vs-text">VS</span>`;
 
     const groupRound = getGroupRoundLabel(match.group, match.type);
@@ -794,7 +794,8 @@ function updateCountdowns() {
         el.className = 'countdown locked';
       } else {
         // Kickoff started
-        el.innerHTML = `<i class="fa-solid fa-futbol text-danger live"></i> ${window.t('live_label')}`;
+        const clock = el.dataset.clock;
+        el.innerHTML = `<i class="fa-solid fa-futbol text-danger live"></i> ${window.t('live_label')}${clock ? ` <span class="live-clock">${clock}</span>` : ''}`;
         el.className = 'countdown live';
       }
 
