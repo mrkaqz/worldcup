@@ -566,6 +566,16 @@ main {
   animation: pulse 1.5s infinite;
 }
 
+.live-clock {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #ff6b6b;
+  margin-left: 0.45rem;
+  vertical-align: middle;
+  opacity: 0.85;
+}
+
 /* Predict controls */
 .predict-actions {
   display: flex;

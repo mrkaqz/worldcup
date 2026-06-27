@@ -626,7 +626,7 @@ function renderMatches() {
     const vsOrScoreHtml = match.status === 'finished'
       ? `<div class="live-score">${match.score1} - ${match.score2}</div>`
       : match.status === 'live'
-      ? `<div class="live-score live-active"><span class="live-badge">LIVE</span>${match.score1 ?? 0} - ${match.score2 ?? 0}</div>`
+      ? `<div class="live-score live-active"><span class="live-badge">LIVE</span>${match.score1 ?? 0} - ${match.score2 ?? 0}${match.clock ? `<span class="live-clock">${match.clock}</span>` : ''}</div>`
       : `<span class="vs-text">VS</span>`;
 
     const groupRound = getGroupRoundLabel(match.group, match.type);

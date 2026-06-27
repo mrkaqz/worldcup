@@ -848,6 +848,7 @@ async function syncLiveScoresFromESPN() {
       const espnAway = awayComp.team?.displayName || '';
       const espnHomeScore = parseInt(homeComp.score) || 0;
       const espnAwayScore = parseInt(awayComp.score) || 0;
+      const espnClock = event.status?.displayClock || null;
 
       const match = liveMatches.find(m =>
         (isSameTeam(m.team1, espnHome) && isSameTeam(m.team2, espnAway)) ||
@@ -864,17 +865,19 @@ async function syncLiveScoresFromESPN() {
         match.score1 = newScore1;
         match.score2 = newScore2;
         match.status = 'finished';
+        match.clock = null;
         const isKnockout = match.type && match.type !== 'group';
         if (newScore1 > newScore2) match.winner = 'team1';
         else if (newScore2 > newScore1) match.winner = 'team2';
         else match.winner = isKnockout ? null : 'draw';
         updated = true;
         console.log(`[ESPN] ${match.team1} ${newScore1}-${newScore2} ${match.team2} (finished)`);
-      } else if (isLive && (match.score1 !== newScore1 || match.score2 !== newScore2)) {
+      } else if (isLive && (match.score1 !== newScore1 || match.score2 !== newScore2 || match.clock !== espnClock)) {
         match.score1 = newScore1;
         match.score2 = newScore2;
+        match.clock = espnClock;
         updated = true;
-        console.log(`[ESPN] ${match.team1} ${newScore1}-${newScore2} ${match.team2} (live)`);
+        console.log(`[ESPN] ${match.team1} ${newScore1}-${newScore2} ${match.team2} ${espnClock || ''} (live)`);
       }
     }
 
