@@ -848,7 +848,7 @@ async function syncLiveScoresFromESPN() {
       const espnAway = awayComp.team?.displayName || '';
       const espnHomeScore = parseInt(homeComp.score) || 0;
       const espnAwayScore = parseInt(awayComp.score) || 0;
-      const espnClock = event.status?.displayClock || null;
+      const espnClock = statusName === 'STATUS_HALFTIME' ? 'HT' : (event.status?.displayClock || null);
 
       const match = liveMatches.find(m =>
         (isSameTeam(m.team1, espnHome) && isSameTeam(m.team2, espnAway)) ||
