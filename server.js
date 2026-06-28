@@ -101,9 +101,9 @@ function calculateLeaderboard(db) {
 
         if (effectiveWinner) {
           const pred = userPreds.find(p => p.matchId === match.id);
-          const predictionValue = pred ? pred.prediction : 'draw';
+          if (!pred) return; // no prediction = no point
           totalPredicted++;
-          if (predictionValue === effectiveWinner) {
+          if (pred.prediction === effectiveWinner) {
             points += 1;
             correctCount++;
           }
