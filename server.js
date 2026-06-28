@@ -170,7 +170,8 @@ function isSameTeam(name1, name2) {
   if ((n1 === 'czech republic' || n1 === 'czechia') && (n2 === 'czech republic' || n2 === 'czechia')) return true;
   // ESPN-specific aliases
   if ((n1 === 'bosnia & herzegovina' || n1 === 'bosnia and herzegovina') && (n2 === 'bosnia & herzegovina' || n2 === 'bosnia and herzegovina')) return true;
-  if ((n1 === 'democratic republic of congo' || n1 === 'democratic republic of the congo' || n1 === 'dr congo') && (n2 === 'democratic republic of congo' || n2 === 'democratic republic of the congo' || n2 === 'dr congo')) return true;
+  const isCongo = n => n === 'democratic republic of congo' || n === 'democratic republic of the congo' || n === 'dr congo' || n === 'congo dr' || n === 'congo, dr' || n === 'drc';
+  if (isCongo(n1) && isCongo(n2)) return true;
   if ((n1 === 'curacao' || n1 === 'curaçao') && (n2 === 'curacao' || n2 === 'curaçao')) return true;
   if ((n1 === 'ivory coast' || n1 === "côte d'ivoire" || n1 === 'cote d\'ivoire') && (n2 === 'ivory coast' || n2 === "côte d'ivoire" || n2 === 'cote d\'ivoire')) return true;
   if ((n1 === 'south korea' || n1 === 'korea republic') && (n2 === 'south korea' || n2 === 'korea republic')) return true;
