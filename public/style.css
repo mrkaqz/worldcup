@@ -78,28 +78,6 @@ main.container {
   padding: 0 1.5rem;
 }
 
-/* Background glows for premium look */
-.bg-glow-1 {
-  position: absolute;
-  top: -10%;
-  left: -10%;
-  width: 50%;
-  height: 50%;
-  background: radial-gradient(circle, rgba(0, 242, 254, 0.08) 0%, rgba(79, 172, 254, 0) 70%);
-  z-index: -2;
-  pointer-events: none;
-}
-
-.bg-glow-2 {
-  position: absolute;
-  bottom: 10%;
-  right: -10%;
-  width: 60%;
-  height: 60%;
-  background: radial-gradient(circle, rgba(246, 211, 101, 0.05) 0%, rgba(253, 160, 133, 0) 70%);
-  z-index: -2;
-  pointer-events: none;
-}
 
 /* ==========================================================================
    TYPOGRAPHY
