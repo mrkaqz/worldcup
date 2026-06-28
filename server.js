@@ -297,9 +297,16 @@ async function syncFromWorldCupAPI() {
                               awayTeam.includes('Winner') || awayTeam.includes('Runner-up') || awayTeam.includes('3rd');
                               
         if (!isPlaceholder) {
-          const candidateId = 'm_' + (game.id || Date.now().toString(36).substr(-4));
-          // Skip if a match with this id already exists (prevents duplicates)
-          if (db.matches.some(m => m.id === candidateId)) return;
+          let candidateId = 'm_' + (game.id || Date.now().toString(36).substr(-4));
+          const existingById = db.matches.find(m => m.id === candidateId);
+          if (existingById) {
+            // Same ID + same teams = genuine duplicate, skip
+            if (isSameTeam(existingById.team1, homeTeam) && isSameTeam(existingById.team2, awayTeam)) return;
+            // ID collision but different teams (API reshuffled game IDs) — generate fallback ID
+            let suffix = 1;
+            while (db.matches.some(m => m.id === candidateId)) candidateId = 'm_' + game.id + 'v' + (suffix++);
+            console.log(`[API Sync] ID collision for game ${game.id}, using fallback id ${candidateId}`);
+          }
 
           const newKickoff = parseAPIDate(game.local_date, game.stadium_id);
           const newMatch = {

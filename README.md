@@ -197,6 +197,7 @@ Monitor builds at: [github.com/mrkaqz/worldcup/actions](https://github.com/mrkaq
 
 | Version | Highlights |
 |---------|-----------|
+| v2.5.7 | Fix England vs DR Congo not importing when API reshuffled game IDs (ID collision fallback) |
 | v2.5.6 | Fix ESPN team-name match for DR Congo ("Congo DR" alias added) |
 | v2.5.5 | Live clock and "Live" label use matching bold font weight |
 | v2.5.4 | Show "HT" at halftime instead of raw clock value |
