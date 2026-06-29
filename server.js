@@ -859,6 +859,7 @@ async function syncLiveScoresFromESPN() {
       const espnHomeScore = parseInt(homeComp.score) || 0;
       const espnAwayScore = parseInt(awayComp.score) || 0;
       const espnClock = (statusName === 'STATUS_HALFTIME' || statusName === 'STATUS_HALFTIME_ET') ? 'HT' : (event.status?.displayClock || null);
+      const espnExtraTime = statusName === 'STATUS_OVERTIME' || statusName === 'STATUS_HALFTIME_ET' || statusName === 'STATUS_END_OF_REGULATION';
 
       const match = liveMatches.find(m =>
         (isSameTeam(m.team1, espnHome) && isSameTeam(m.team2, espnAway)) ||
@@ -876,18 +877,20 @@ async function syncLiveScoresFromESPN() {
         match.score2 = newScore2;
         match.status = 'finished';
         match.clock = null;
+        match.extraTime = false;
         const isKnockout = match.type && match.type !== 'group';
         if (newScore1 > newScore2) match.winner = 'team1';
         else if (newScore2 > newScore1) match.winner = 'team2';
         else match.winner = isKnockout ? null : 'draw';
         updated = true;
         console.log(`[ESPN] ${match.team1} ${newScore1}-${newScore2} ${match.team2} (finished)`);
-      } else if (isLive && (match.score1 !== newScore1 || match.score2 !== newScore2 || match.clock !== espnClock)) {
+      } else if (isLive && (match.score1 !== newScore1 || match.score2 !== newScore2 || match.clock !== espnClock || !!match.extraTime !== espnExtraTime)) {
         match.score1 = newScore1;
         match.score2 = newScore2;
         match.clock = espnClock;
+        match.extraTime = espnExtraTime;
         updated = true;
-        console.log(`[ESPN] ${match.team1} ${newScore1}-${newScore2} ${match.team2} ${espnClock || ''} (live)`);
+        console.log(`[ESPN] ${match.team1} ${newScore1}-${newScore2} ${match.team2} ${espnClock || ''}${espnExtraTime ? ' (ET)' : ''} (live)`);
       }
     }
 

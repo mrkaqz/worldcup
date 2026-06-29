@@ -197,6 +197,7 @@ Monitor builds at: [github.com/mrkaqz/worldcup/actions](https://github.com/mrkaq
 
 | Version | Highlights |
 |---------|-----------|
+| v2.7.0 | Show "Live ET" badge during extra time (e.g. "Live ET 107'", "Live ET HT") instead of plain "Live" |
 | v2.6.1 | Recognize ESPN `STATUS_HALFTIME_ET` (break between extra-time periods) as live; show "HT" badge |
 | v2.6.0 | Recognize ESPN `STATUS_OVERTIME` (extra time) as live |
 | v2.5.9 | Recognize ESPN `STATUS_END_OF_REGULATION` (break before extra time) as live |
