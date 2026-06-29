@@ -197,6 +197,10 @@ Monitor builds at: [github.com/mrkaqz/worldcup/actions](https://github.com/mrkaq
 
 | Version | Highlights |
 |---------|-----------|
+| v2.6.1 | Recognize ESPN `STATUS_HALFTIME_ET` (break between extra-time periods) as live; show "HT" badge |
+| v2.6.0 | Recognize ESPN `STATUS_OVERTIME` (extra time) as live |
+| v2.5.9 | Recognize ESPN `STATUS_END_OF_REGULATION` (break before extra time) as live |
+| v2.5.8 | Flat uniform background — removed decorative glow overlays |
 | v2.5.7 | Fix England vs DR Congo not importing when API reshuffled game IDs (ID collision fallback) |
 | v2.5.6 | Fix ESPN team-name match for DR Congo ("Congo DR" alias added) |
 | v2.5.5 | Live clock and "Live" label use matching bold font weight |
