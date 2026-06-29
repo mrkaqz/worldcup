@@ -850,7 +850,7 @@ async function syncLiveScoresFromESPN() {
                  || statusName === 'STATUS_PENALTY' || statusName === 'STATUS_END_OF_REGULATION'
                  || statusName === 'STATUS_HALFTIME_ET' || statusName === 'STATUS_END_OF_EXTRATIME'
                  || statusName === 'STATUS_SHOOTOUT';
-      const isFinal = statusName === 'STATUS_FINAL' || statusName === 'STATUS_FULL_TIME';
+      const isFinal = statusName === 'STATUS_FINAL' || statusName === 'STATUS_FULL_TIME' || statusName === 'STATUS_FINAL_PEN';
       if (!isLive && !isFinal) continue;
 
       const homeComp = comp.competitors?.find(c => c.homeAway === 'home');
