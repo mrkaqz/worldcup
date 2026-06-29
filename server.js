@@ -846,7 +846,8 @@ async function syncLiveScoresFromESPN() {
                  || statusName === 'STATUS_FIRST_HALF' || statusName === 'STATUS_SECOND_HALF'
                  || statusName === 'STATUS_EXTRA_TIME' || statusName === 'STATUS_OVERTIME'
                  || statusName === 'STATUS_PENALTY' || statusName === 'STATUS_END_OF_REGULATION'
-                 || statusName === 'STATUS_HALFTIME_ET' || statusName === 'STATUS_END_OF_EXTRATIME';
+                 || statusName === 'STATUS_HALFTIME_ET' || statusName === 'STATUS_END_OF_EXTRATIME'
+                 || statusName === 'STATUS_SHOOTOUT';
       const isFinal = statusName === 'STATUS_FINAL' || statusName === 'STATUS_FULL_TIME';
       if (!isLive && !isFinal) continue;
 
@@ -859,7 +860,7 @@ async function syncLiveScoresFromESPN() {
       const espnHomeScore = parseInt(homeComp.score) || 0;
       const espnAwayScore = parseInt(awayComp.score) || 0;
       const espnClock = (statusName === 'STATUS_HALFTIME' || statusName === 'STATUS_HALFTIME_ET') ? 'HT' : (event.status?.displayClock || null);
-      const espnPeriod = (statusName === 'STATUS_END_OF_EXTRATIME' || statusName === 'STATUS_PENALTY') ? 'pen'
+      const espnPeriod = (statusName === 'STATUS_END_OF_EXTRATIME' || statusName === 'STATUS_PENALTY' || statusName === 'STATUS_SHOOTOUT') ? 'pen'
                        : (statusName === 'STATUS_OVERTIME' || statusName === 'STATUS_HALFTIME_ET' || statusName === 'STATUS_END_OF_REGULATION') ? 'et'
                        : null;
 
