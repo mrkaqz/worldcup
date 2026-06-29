@@ -581,7 +581,7 @@ function renderMatches() {
       countdownBadgeHtml = `<span class="countdown locked"><i class="fa-solid fa-circle"></i> ${window.t('finished_label')}</span>`;
     } else {
       countdownBadgeHtml = `
-        <span class="countdown kickoff-countdown" data-kickoff="${match.kickoff}" data-locked="${match.locked}" data-clock="${match.clock || ''}" data-extra-time="${match.extraTime ? '1' : ''}">
+        <span class="countdown kickoff-countdown" data-kickoff="${match.kickoff}" data-locked="${match.locked}" data-clock="${match.clock || ''}" data-period="${match.period || ''}">
           <i class="fa-regular fa-clock"></i> ${window.t('loading_time')}
         </span>
       `;
@@ -795,9 +795,12 @@ function updateCountdowns() {
       } else {
         // Kickoff started
         const clock = el.dataset.clock;
-        const isExtraTime = el.dataset.extraTime === '1';
-        const liveLabel = isExtraTime ? `${window.t('live_label')} ET` : window.t('live_label');
-        el.innerHTML = `<i class="fa-solid fa-futbol text-danger live"></i> ${liveLabel}${clock ? ` <span class="live-clock">${clock}</span>` : ''}`;
+        const period = el.dataset.period;
+        const liveLabel = period === 'pen' ? `${window.t('live_label')} Penalty`
+                        : period === 'et'  ? `${window.t('live_label')} ET`
+                        : window.t('live_label');
+        const showClock = period !== 'pen' && clock;
+        el.innerHTML = `<i class="fa-solid fa-futbol text-danger live"></i> ${liveLabel}${showClock ? ` <span class="live-clock">${clock}</span>` : ''}`;
         el.className = 'countdown live';
       }
 

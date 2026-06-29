@@ -859,7 +859,9 @@ async function syncLiveScoresFromESPN() {
       const espnHomeScore = parseInt(homeComp.score) || 0;
       const espnAwayScore = parseInt(awayComp.score) || 0;
       const espnClock = (statusName === 'STATUS_HALFTIME' || statusName === 'STATUS_HALFTIME_ET') ? 'HT' : (event.status?.displayClock || null);
-      const espnExtraTime = statusName === 'STATUS_OVERTIME' || statusName === 'STATUS_HALFTIME_ET' || statusName === 'STATUS_END_OF_REGULATION' || statusName === 'STATUS_END_OF_EXTRATIME';
+      const espnPeriod = (statusName === 'STATUS_END_OF_EXTRATIME' || statusName === 'STATUS_PENALTY') ? 'pen'
+                       : (statusName === 'STATUS_OVERTIME' || statusName === 'STATUS_HALFTIME_ET' || statusName === 'STATUS_END_OF_REGULATION') ? 'et'
+                       : null;
 
       const match = liveMatches.find(m =>
         (isSameTeam(m.team1, espnHome) && isSameTeam(m.team2, espnAway)) ||
@@ -877,20 +879,20 @@ async function syncLiveScoresFromESPN() {
         match.score2 = newScore2;
         match.status = 'finished';
         match.clock = null;
-        match.extraTime = false;
+        match.period = null;
         const isKnockout = match.type && match.type !== 'group';
         if (newScore1 > newScore2) match.winner = 'team1';
         else if (newScore2 > newScore1) match.winner = 'team2';
         else match.winner = isKnockout ? null : 'draw';
         updated = true;
         console.log(`[ESPN] ${match.team1} ${newScore1}-${newScore2} ${match.team2} (finished)`);
-      } else if (isLive && (match.score1 !== newScore1 || match.score2 !== newScore2 || match.clock !== espnClock || !!match.extraTime !== espnExtraTime)) {
+      } else if (isLive && (match.score1 !== newScore1 || match.score2 !== newScore2 || match.clock !== espnClock || match.period !== espnPeriod)) {
         match.score1 = newScore1;
         match.score2 = newScore2;
         match.clock = espnClock;
-        match.extraTime = espnExtraTime;
+        match.period = espnPeriod;
         updated = true;
-        console.log(`[ESPN] ${match.team1} ${newScore1}-${newScore2} ${match.team2} ${espnClock || ''}${espnExtraTime ? ' (ET)' : ''} (live)`);
+        console.log(`[ESPN] ${match.team1} ${newScore1}-${newScore2} ${match.team2} ${espnClock || ''}${espnPeriod ? ` (${espnPeriod.toUpperCase()})` : ''} (live)`);
       }
     }
 
