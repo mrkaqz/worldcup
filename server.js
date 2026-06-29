@@ -844,7 +844,8 @@ async function syncLiveScoresFromESPN() {
       const statusName = event.status?.type?.name || '';
       const isLive = statusName === 'STATUS_IN_PROGRESS' || statusName === 'STATUS_HALFTIME'
                  || statusName === 'STATUS_FIRST_HALF' || statusName === 'STATUS_SECOND_HALF'
-                 || statusName === 'STATUS_EXTRA_TIME' || statusName === 'STATUS_PENALTY';
+                 || statusName === 'STATUS_EXTRA_TIME' || statusName === 'STATUS_PENALTY'
+                 || statusName === 'STATUS_END_OF_REGULATION';
       const isFinal = statusName === 'STATUS_FINAL' || statusName === 'STATUS_FULL_TIME';
       if (!isLive && !isFinal) continue;
 
