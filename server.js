@@ -269,10 +269,12 @@ async function syncFromWorldCupAPI() {
           match.score1 = homeScore;
           match.score2 = awayScore;
           match.status = 'finished';
+          match.period = null;
 
+          const isKnockout = match.type && match.type !== 'group';
           if (homeScore > awayScore) match.winner = 'team1';
           else if (awayScore > homeScore) match.winner = 'team2';
-          else match.winner = 'draw';
+          else match.winner = isKnockout ? null : 'draw';
 
           matchUpdated = true;
           console.log(`[API Sync] Match ${match.team1} vs ${match.team2} finished: ${homeScore}-${awayScore}`);

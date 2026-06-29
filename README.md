@@ -197,6 +197,7 @@ Monitor builds at: [github.com/mrkaqz/worldcup/actions](https://github.com/mrkaq
 
 | Version | Highlights |
 |---------|-----------|
+| v2.7.4 | Fix worldcup26.ir sync setting winner='draw' for knockout penalty matches (tie score after ET) |
 | v2.7.3 | Recognize ESPN `STATUS_SHOOTOUT` as Live Penalty |
 | v2.7.2 | Show "Live Penalty" for `STATUS_END_OF_EXTRATIME` and `STATUS_PENALTY`; hide clock during pens |
 | v2.7.1 | Recognize ESPN `STATUS_END_OF_EXTRATIME` (break after ET ends, before penalties) as live ET |
