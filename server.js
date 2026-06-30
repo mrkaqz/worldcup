@@ -771,16 +771,21 @@ app.get('/api/debug/worldcup', async (req, res) => {
     res.json({
       fetched_at: new Date().toISOString(),
       total: games.length,
-      games: games.map(g => ({
-        id: g.id,
-        home: g.home_team_name_en,
-        away: g.away_team_name_en,
-        home_score: g.home_score,
-        away_score: g.away_score,
-        finished: g.finished,
-        time_elapsed: g.time_elapsed,
-        local_date: g.local_date,
-      }))
+      games: games.map(g => {
+        const entry = {
+          id: g.id,
+          home: g.home_team_name_en,
+          away: g.away_team_name_en,
+          home_score: g.home_score,
+          away_score: g.away_score,
+          finished: g.finished,
+          time_elapsed: g.time_elapsed,
+          local_date: g.local_date,
+        };
+        if (g.home_penalty_score !== undefined) entry.home_penalty_score = g.home_penalty_score;
+        if (g.away_penalty_score !== undefined) entry.away_penalty_score = g.away_penalty_score;
+        return entry;
+      })
     });
   } catch (err) {
     res.status(500).json({ error: err.message });
