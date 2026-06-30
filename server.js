@@ -286,8 +286,8 @@ async function syncFromWorldCupAPI() {
 
           matchUpdated = true;
           console.log(`[API Sync] Match ${match.team1} vs ${match.team2} finished: ${homeScore}-${awayScore}${homePenScore !== null ? ` (P ${homePenScore}-${awayPenScore})` : ''}`);
-        } else if (isFinished && match.status === 'finished' && match.winner === null && homePenScore !== null && awayPenScore !== null) {
-          // Penalty scores now available for an already-finished match with no winner set
+        } else if (isFinished && match.status === 'finished' && homePenScore !== null && awayPenScore !== null && match.winner !== 'team1' && match.winner !== 'team2') {
+          // Penalty scores now available — fix null or stale 'draw' winner on knockout matches
           match.winner = homePenScore > awayPenScore ? 'team1' : 'team2';
           match.penScore1 = homePenScore;
           match.penScore2 = awayPenScore;
