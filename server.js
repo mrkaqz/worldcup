@@ -807,7 +807,7 @@ app.get('/api/debug/espn', async (req, res) => {
         const comp = e.competitions?.[0];
         const home = comp?.competitors?.find(c => c.homeAway === 'home');
         const away = comp?.competitors?.find(c => c.homeAway === 'away');
-        return {
+        const entry = {
           id: e.id,
           name: e.name,
           status: e.status?.type?.name,
@@ -817,6 +817,11 @@ app.get('/api/debug/espn', async (req, res) => {
           home_score: home?.score,
           away_score: away?.score,
         };
+        if (home?.shootoutScore !== undefined) entry.home_shootout_score = home.shootoutScore;
+        if (away?.shootoutScore !== undefined) entry.away_shootout_score = away.shootoutScore;
+        if (home?.linescores?.length) entry.home_linescores = home.linescores.map(l => ({ period: l.period?.number, score: l.value }));
+        if (away?.linescores?.length) entry.away_linescores = away.linescores.map(l => ({ period: l.period?.number, score: l.value }));
+        return entry;
       })
     });
   } catch (err) {
