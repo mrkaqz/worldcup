@@ -623,8 +623,10 @@ function renderMatches() {
     }
 
     // Score display if finished/live
+    const penSuffix = (match.status === 'finished' && match.penScore1 != null)
+      ? `<div class="pen-score">P ${match.penScore1} - ${match.penScore2}</div>` : '';
     const vsOrScoreHtml = match.status === 'finished'
-      ? `<div class="live-score">${match.score1} - ${match.score2}</div>`
+      ? `<div class="live-score">${match.score1} - ${match.score2}</div>${penSuffix}`
       : match.status === 'live'
       ? `<div class="live-score live-active">${match.score1 ?? 0} - ${match.score2 ?? 0}</div>`
       : `<span class="vs-text">VS</span>`;

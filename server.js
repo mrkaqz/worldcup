@@ -241,6 +241,8 @@ async function syncFromWorldCupAPI() {
       
       const homeScore = game.home_score !== 'null' ? parseInt(game.home_score) : null;
       const awayScore = game.away_score !== 'null' ? parseInt(game.away_score) : null;
+      const homePenScore = game.home_penalty_score && game.home_penalty_score !== 'null' ? parseInt(game.home_penalty_score) : null;
+      const awayPenScore = game.away_penalty_score && game.away_penalty_score !== 'null' ? parseInt(game.away_penalty_score) : null;
       
       if (match) {
         let matchUpdated = false;
@@ -274,10 +276,23 @@ async function syncFromWorldCupAPI() {
           const isKnockout = match.type && match.type !== 'group';
           if (homeScore > awayScore) match.winner = 'team1';
           else if (awayScore > homeScore) match.winner = 'team2';
-          else match.winner = isKnockout ? null : 'draw';
+          else if (isKnockout && homePenScore !== null && awayPenScore !== null) {
+            match.winner = homePenScore > awayPenScore ? 'team1' : 'team2';
+            match.penScore1 = homePenScore;
+            match.penScore2 = awayPenScore;
+          } else {
+            match.winner = isKnockout ? null : 'draw';
+          }
 
           matchUpdated = true;
-          console.log(`[API Sync] Match ${match.team1} vs ${match.team2} finished: ${homeScore}-${awayScore}`);
+          console.log(`[API Sync] Match ${match.team1} vs ${match.team2} finished: ${homeScore}-${awayScore}${homePenScore !== null ? ` (P ${homePenScore}-${awayPenScore})` : ''}`);
+        } else if (isFinished && match.status === 'finished' && match.winner === null && homePenScore !== null && awayPenScore !== null) {
+          // Penalty scores now available for an already-finished match with no winner set
+          match.winner = homePenScore > awayPenScore ? 'team1' : 'team2';
+          match.penScore1 = homePenScore;
+          match.penScore2 = awayPenScore;
+          matchUpdated = true;
+          console.log(`[API Sync] ${match.team1} vs ${match.team2} penalty winner set: ${homePenScore}-${awayPenScore}`);
         } else if (isLive && pastKickoff && (match.score1 !== homeScore || match.score2 !== awayScore || match.status !== 'live')) {
           match.score1 = homeScore;
           match.score2 = awayScore;

@@ -531,6 +531,14 @@ main {
   position: relative;
 }
 
+.pen-score {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted, #8899aa);
+  letter-spacing: 1px;
+  margin-top: 0.1rem;
+}
+
 .live-badge {
   display: inline-block;
   font-size: 0.6rem;
