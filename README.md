@@ -197,6 +197,7 @@ Monitor builds at: [github.com/mrkaqz/worldcup/actions](https://github.com/mrkaq
 
 | Version | Highlights |
 |---------|-----------|
+| v2.8.1 | Also set penalty winner from ESPN `shootoutScore` on `STATUS_FINAL_PEN` |
 | v2.8.0 | Auto-set penalty winner from worldcup26.ir `home/away_penalty_score`; show "P X-Y" on match card |
 | v2.7.5 | Recognise ESPN `STATUS_FINAL_PEN` as match finished; winner=null pending admin penalty result |
 | v2.7.4 | Fix worldcup26.ir sync setting winner='draw' for knockout penalty matches (tie score after ET) |

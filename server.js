@@ -886,6 +886,8 @@ async function syncLiveScoresFromESPN() {
       const espnAway = awayComp.team?.displayName || '';
       const espnHomeScore = parseInt(homeComp.score) || 0;
       const espnAwayScore = parseInt(awayComp.score) || 0;
+      const espnHomePen = homeComp.shootoutScore != null ? parseInt(homeComp.shootoutScore) : null;
+      const espnAwayPen = awayComp.shootoutScore != null ? parseInt(awayComp.shootoutScore) : null;
       const espnClock = (statusName === 'STATUS_HALFTIME' || statusName === 'STATUS_HALFTIME_ET') ? 'HT' : (event.status?.displayClock || null);
       const espnPeriod = (statusName === 'STATUS_END_OF_EXTRATIME' || statusName === 'STATUS_PENALTY' || statusName === 'STATUS_SHOOTOUT') ? 'pen'
                        : (statusName === 'STATUS_OVERTIME' || statusName === 'STATUS_HALFTIME_ET' || statusName === 'STATUS_END_OF_REGULATION') ? 'et'
@@ -902,6 +904,10 @@ async function syncLiveScoresFromESPN() {
       const newScore1 = reversed ? espnAwayScore : espnHomeScore;
       const newScore2 = reversed ? espnHomeScore : espnAwayScore;
 
+      // Align penalty shootout scores to team1/team2 orientation
+      const newPen1 = espnHomePen != null ? (reversed ? espnAwayPen : espnHomePen) : null;
+      const newPen2 = espnAwayPen != null ? (reversed ? espnHomePen : espnAwayPen) : null;
+
       if (isFinal && match.status !== 'finished') {
         match.score1 = newScore1;
         match.score2 = newScore2;
@@ -911,9 +917,21 @@ async function syncLiveScoresFromESPN() {
         const isKnockout = match.type && match.type !== 'group';
         if (newScore1 > newScore2) match.winner = 'team1';
         else if (newScore2 > newScore1) match.winner = 'team2';
-        else match.winner = isKnockout ? null : 'draw';
+        else if (isKnockout && newPen1 != null && newPen2 != null) {
+          match.winner = newPen1 > newPen2 ? 'team1' : 'team2';
+          match.penScore1 = newPen1;
+          match.penScore2 = newPen2;
+        } else {
+          match.winner = isKnockout ? null : 'draw';
+        }
         updated = true;
-        console.log(`[ESPN] ${match.team1} ${newScore1}-${newScore2} ${match.team2} (finished)`);
+        console.log(`[ESPN] ${match.team1} ${newScore1}-${newScore2} ${match.team2}${newPen1 != null ? ` (P ${newPen1}-${newPen2})` : ''} (finished)`);
+      } else if (isFinal && match.status === 'finished' && match.winner === null && newPen1 != null && newPen2 != null) {
+        match.winner = newPen1 > newPen2 ? 'team1' : 'team2';
+        match.penScore1 = newPen1;
+        match.penScore2 = newPen2;
+        updated = true;
+        console.log(`[ESPN] ${match.team1} vs ${match.team2} penalty winner set from shootoutScore: ${newPen1}-${newPen2}`);
       } else if (isLive && (match.score1 !== newScore1 || match.score2 !== newScore2 || match.clock !== espnClock || match.period !== espnPeriod)) {
         match.score1 = newScore1;
         match.score2 = newScore2;
